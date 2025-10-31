@@ -205,7 +205,12 @@ class I18n {
                 'try-again-5': "Keep going! You've got this!",
                 'try-again-6': 'Good effort! Try again!',
                 'try-again-7': 'So close! One more time!',
-                'try-again-8': "You're getting better! Try again!"
+                'try-again-8': "You're getting better! Try again!",
+                
+                // Storekeeper Stories
+                'correct-operation': '✅ Correct operation! Now solve for the answer.',
+                'wrong-operation': '❌ Wrong operation. Try again!',
+                'wrong-answer-storekeeper': "❌ That's not correct. Try again!"
             },
             es: {
                 // Navigation
@@ -409,7 +414,12 @@ class I18n {
                 'try-again-5': '¡Sigue adelante! ¡Tú puedes!',
                 'try-again-6': '¡Buen esfuerzo! ¡Inténtalo de nuevo!',
                 'try-again-7': '¡Muy cerca! ¡Una vez más!',
-                'try-again-8': '¡Estás mejorando! ¡Inténtalo de nuevo!'
+                'try-again-8': '¡Estás mejorando! ¡Inténtalo de nuevo!',
+                
+                // Storekeeper Stories
+                'correct-operation': '✅ ¡Operación correcta! Ahora resuelve para obtener la respuesta.',
+                'wrong-operation': '❌ ¡Operación incorrecta. Inténtalo de nuevo!',
+                'wrong-answer-storekeeper': '❌ ¡Eso no es correcto. Inténtalo de nuevo!'
             }
         };
         

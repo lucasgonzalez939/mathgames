@@ -355,10 +355,10 @@ class StorekeeperStories extends BaseGame {
     showOperatorFeedback(isCorrect) {
         const feedback = document.getElementById('feedback');
         if (isCorrect) {
-            feedback.innerHTML = '<div class="success-message">✅ Correct operation! Now solve for the answer.</div>';
+            feedback.innerHTML = `<div class="success-message">${i18n.get('correct-operation')}</div>`;
             feedback.className = 'feedback success';
         } else {
-            feedback.innerHTML = '<div class="error-message">❌ Wrong operation. Try again!</div>';
+            feedback.innerHTML = `<div class="error-message">${i18n.get('wrong-operation')}</div>`;
             feedback.className = 'feedback error';
             
             // Reset operator selection after delay
@@ -431,7 +431,7 @@ class StorekeeperStories extends BaseGame {
         document.getElementById('checkAnswerBtn').disabled = true;
         
         const feedback = document.getElementById('feedback');
-        feedback.innerHTML = '<div class="error-message">❌ That\'s not correct. Try again!</div>';
+        feedback.innerHTML = `<div class="error-message">${i18n.get('wrong-answer-storekeeper')}</div>`;
         feedback.className = 'feedback error';
     // Record incorrect attempt for achievements/streaks
     this.recordIncorrectAnswer();
