@@ -308,7 +308,8 @@ class PlaceValuePuzzles extends BaseGame {
         const buildArea = document.getElementById('buildArea');
         buildArea.classList.add('success-glow');
         
-        this.showFeedback('🎉 Perfect! You built ' + this.targetNumber + '! 🎉', 'success');
+        const perfectMsg = typeof i18n !== 'undefined' ? i18n.get('placevalue-perfect') : 'Perfect! You built';
+        this.showFeedback(`🎉 ${perfectMsg} ${this.targetNumber}! 🎉`, 'success');
         
         // Award points
         this.updateScore(25 * this.level);
@@ -326,7 +327,9 @@ class PlaceValuePuzzles extends BaseGame {
     
     onExceededTarget() {
         this.playSound('wrong');
-        this.showFeedback('Oops! You went over ' + this.targetNumber + '. Use the Reset button to try again.', 'error');
+        const exceededMsg = typeof i18n !== 'undefined' ? i18n.get('placevalue-exceeded') : 'Oops! You went over';
+        const hintMsg = typeof i18n !== 'undefined' ? i18n.get('placevalue-exceeded-hint') : 'Use the Reset button to try again.';
+        this.showFeedback(`${exceededMsg} ${this.targetNumber}. ${hintMsg}`, 'error');
         this.disableSpawners();
         // Record incorrect attempt as feedback for achievements/streaks
         this.recordIncorrectAnswer();
@@ -340,12 +343,20 @@ class PlaceValuePuzzles extends BaseGame {
     }
     
     showExceedsMessage() {
-        this.showFeedback('That would make the number too big! Target is ' + this.targetNumber, 'warning');
+        const tooBigMsg = typeof i18n !== 'undefined' ? i18n.get('placevalue-too-big') : 'That would make the number too big! Target is';
+        this.showFeedback(`${tooBigMsg} ${this.targetNumber}`, 'warning');
     }
     
     showLimitMessage(type) {
-        const typeName = type === 'hundreds' ? 'hundred' : (type === 'tens' ? 'ten' : 'one');
-        this.showFeedback(`Maximum ${typeName} blocks reached!`, 'warning');
+        let typeName;
+        if (typeof i18n !== 'undefined') {
+            typeName = type === 'hundreds' ? i18n.get('hundreds') : (type === 'tens' ? i18n.get('tens') : i18n.get('ones'));
+        } else {
+            typeName = type === 'hundreds' ? 'Hundreds' : (type === 'tens' ? 'Tens' : 'Ones');
+        }
+        const maxMsg = typeof i18n !== 'undefined' ? i18n.get('placevalue-max-blocks') : 'Maximum';
+        const reachedMsg = typeof i18n !== 'undefined' ? i18n.get('placevalue-blocks-reached') : 'blocks reached!';
+        this.showFeedback(`${maxMsg} ${typeName} ${reachedMsg}`, 'warning');
     }
     
     disableSpawners() {
@@ -372,15 +383,27 @@ class PlaceValuePuzzles extends BaseGame {
         let hint = '';
         
         if (currentHundreds < targetHundreds) {
-            hint = `You need ${targetHundreds - currentHundreds} more hundred block(s).`;
+            const needMsg = typeof i18n !== 'undefined' ? i18n.get('placevalue-hint-need-more') : 'You need';
+            const moreMsg = typeof i18n !== 'undefined' ? i18n.get('placevalue-hint-more') : 'more';
+            const blockMsg = typeof i18n !== 'undefined' ? i18n.get('placevalue-hint-hundred-blocks') : 'hundred block(s).';
+            hint = `${needMsg} ${targetHundreds - currentHundreds} ${moreMsg} ${blockMsg}`;
         } else if (currentTens < targetTens) {
-            hint = `You need ${targetTens - currentTens} more ten block(s).`;
+            const needMsg = typeof i18n !== 'undefined' ? i18n.get('placevalue-hint-need-more') : 'You need';
+            const moreMsg = typeof i18n !== 'undefined' ? i18n.get('placevalue-hint-more') : 'more';
+            const blockMsg = typeof i18n !== 'undefined' ? i18n.get('placevalue-hint-ten-blocks') : 'ten block(s).';
+            hint = `${needMsg} ${targetTens - currentTens} ${moreMsg} ${blockMsg}`;
         } else if (currentOnes < targetOnes) {
-            hint = `You need ${targetOnes - currentOnes} more one block(s).`;
+            const needMsg = typeof i18n !== 'undefined' ? i18n.get('placevalue-hint-need-more') : 'You need';
+            const moreMsg = typeof i18n !== 'undefined' ? i18n.get('placevalue-hint-more') : 'more';
+            const blockMsg = typeof i18n !== 'undefined' ? i18n.get('placevalue-hint-one-blocks') : 'one block(s).';
+            hint = `${needMsg} ${targetOnes - currentOnes} ${moreMsg} ${blockMsg}`;
         } else if (this.currentTotal === this.targetNumber) {
-            hint = 'Perfect! You\'ve built the target number!';
+            hint = typeof i18n !== 'undefined' ? i18n.get('placevalue-hint-perfect') : 'Perfect! You\'ve built the target number!';
         } else {
-            hint = `${this.targetNumber} = ${targetHundreds} hundreds + ${targetTens} tens + ${targetOnes} ones`;
+            const hundredsLabel = typeof i18n !== 'undefined' ? i18n.get('hundreds') : 'hundreds';
+            const tensLabel = typeof i18n !== 'undefined' ? i18n.get('tens') : 'tens';
+            const onesLabel = typeof i18n !== 'undefined' ? i18n.get('ones') : 'ones';
+            hint = `${this.targetNumber} = ${targetHundreds} ${hundredsLabel} + ${targetTens} ${tensLabel} + ${targetOnes} ${onesLabel}`;
         }
         
         this.showFeedback('💡 ' + hint, 'hint');
