@@ -61,7 +61,7 @@ class StorekeeperStories extends BaseGame {
                     
                     <div class="answer-section" id="answerSection" style="display: none;">
                         <div class="instruction-text" data-i18n="storekeeper-enter-answer">Enter your answer</div>
-                        <button class="btn" id="checkAnswerBtn" disabled>Check Answer</button>
+                        <button class="btn" id="checkAnswerBtn" disabled data-i18n="check-answer">Check Answer</button>
                     </div>
                 </div>
                 
@@ -448,8 +448,8 @@ class StorekeeperStories extends BaseGame {
         feedback.innerHTML = `
             <div class="round-complete">
                 <div class="celebration">🏆</div>
-                <div class="completion-text">Great job! You solved all the story problems!</div>
-                <div class="score-info">You earned ${30 * this.problems.length * this.level} points!</div>
+                <div class="completion-text">${i18n.get('story-problems-complete')}</div>
+                <div class="score-info">${i18n.get('score')}: ${30 * this.problems.length * this.level}</div>
             </div>
         `;
         feedback.className = 'feedback success';

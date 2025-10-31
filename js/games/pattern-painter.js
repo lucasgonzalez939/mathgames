@@ -55,8 +55,8 @@ class PatternPainter extends BaseGame {
                 </div>
                 
                 <div class="game-controls">
-                    <button class="btn btn-secondary" id="hintBtn">Show Hint</button>
-                    <button class="btn btn-secondary" id="newPatternBtn">New Pattern</button>
+                    <button class="btn btn-secondary" id="hintBtn" data-i18n="show-hint">Show Hint</button>
+                    <button class="btn btn-secondary" id="newPatternBtn" data-i18n="new-pattern">New Pattern</button>
                 </div>
                 
                 <div class="streak-display">

@@ -449,7 +449,7 @@ class FactFamilyFarm extends BaseGame {
     }
     
     completeRound() {
-        this.showFeedback('🏆 All pairs found! Great job! 🏆', 'success');
+        this.showFeedback(i18n.get('all-pairs-found'), 'success');
         
         if (this.score > 0 && this.score % 75 === 0) {
             this.updateLevel();

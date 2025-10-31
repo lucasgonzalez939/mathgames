@@ -59,9 +59,9 @@ class MathStacker extends BaseGame {
                 </div>
                 
                 <div class="game-controls">
-                    <button class="btn" id="checkBtn" disabled>Check Answer</button>
-                    <button class="btn btn-secondary" id="hintBtn">Show Hint</button>
-                    <button class="btn btn-secondary" id="helpBtn">How to Play</button>
+                    <button class="btn" id="checkBtn" disabled data-i18n="check-answer">Check Answer</button>
+                    <button class="btn btn-secondary" id="hintBtn" data-i18n="show-hint">Show Hint</button>
+                    <button class="btn btn-secondary" id="helpBtn" data-i18n="how-to-play">How to Play</button>
                 </div>
                 
                 <div class="step-helper" id="stepHelper"></div>
@@ -76,7 +76,7 @@ class MathStacker extends BaseGame {
                 </div>
 
                 <div class="tower-display">
-                    <div class="tower-title">Completed Problems:</div>
+                    <div class="tower-title" data-i18n="completed-problems">Completed Problems:</div>
                     <div class="tower" id="tower"></div>
                 </div>
                 
@@ -339,18 +339,18 @@ class MathStacker extends BaseGame {
         const carryNeeded = !this.isSubtraction && (topOnes + bottomOnes) >= 10;
         if (this.currentColumn === 'ones') {
             helper.innerHTML = `
-                <span class="badge">Step 1</span>
-                Add ones: <strong>${topOnes} + ${bottomOnes}</strong>
+                <span class="badge" data-i18n="step-1">Step 1</span>
+                ${i18n.get('addition')}: <strong>${topOnes} + ${bottomOnes}</strong>
                 ${carryNeeded ? ' — 10 or more: click the carry box (1)' : ''}
             `;
             this.highlightColumn('ones');
         } else {
             const topTens = Math.floor(this.topNumber / 10);
             const bottomTens = Math.floor(this.bottomNumber / 10);
-            const carryText = (!this.isSubtraction && this.needsCarry) ? ' + 1 (carried)' : '';
+            const carryText = (!this.isSubtraction && this.needsCarry) ? ` + 1 (${i18n.get('hint-carried')})` : '';
             helper.innerHTML = `
-                <span class="badge">Step 2</span>
-                Add tens: <strong>${topTens} + ${bottomTens}${carryText}</strong>
+                <span class="badge" data-i18n="step-2">Step 2</span>
+                ${i18n.get('addition')}: <strong>${topTens} + ${bottomTens}${carryText}</strong>
             `;
             this.highlightColumn('tens');
         }
@@ -466,14 +466,14 @@ class MathStacker extends BaseGame {
             
             if (this.isSubtraction) {
                 if (this.needsBorrow) {
-                    hintText = `Since ${topOnes} < ${bottomOnes}, you need to borrow from the tens place. ${topOnes} + 10 - ${bottomOnes} = ${this.correctOnes}`;
+                    hintText = `${i18n.get('hint-since-borrow-prefix')} ${topOnes} < ${bottomOnes}, ${i18n.get('hint-borrow-tens')} ${topOnes} + 10 - ${bottomOnes} = ${this.correctOnes}`;
                 } else {
                     hintText = `${topOnes} - ${bottomOnes} = ${this.correctOnes}`;
                 }
             } else {
                 hintText = `${topOnes} + ${bottomOnes} = ${topOnes + bottomOnes}`;
                 if (this.needsCarry) {
-                    hintText += `. Since this is ≥ 10, write ${this.correctOnes} and carry 1.`;
+                    hintText += `. ${i18n.get('hint-since-gte-10')} ${this.correctOnes} ${i18n.get('hint-and-carry-1')}`;
                 }
             }
         } else {
@@ -482,13 +482,13 @@ class MathStacker extends BaseGame {
             
             if (this.isSubtraction) {
                 if (this.needsBorrow) {
-                    hintText = `After borrowing: (${topTens} - 1) - ${bottomTens} = ${this.correctTens}`;
+                    hintText = `${i18n.get('hint-after-borrowing')} (${topTens} - 1) - ${bottomTens} = ${this.correctTens}`;
                 } else {
                     hintText = `${topTens} - ${bottomTens} = ${this.correctTens}`;
                 }
             } else {
                 if (this.needsCarry) {
-                    hintText = `${topTens} + ${bottomTens} + 1 (carried) = ${this.correctTens}`;
+                    hintText = `${topTens} + ${bottomTens} + 1 (${i18n.get('hint-carried')}) = ${this.correctTens}`;
                 } else {
                     hintText = `${topTens} + ${bottomTens} = ${this.correctTens}`;
                 }
