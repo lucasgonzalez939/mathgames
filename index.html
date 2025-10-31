@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="main-title">Math Games - Fun Learning for Kids</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/achievements.css">
+    <link rel="stylesheet" href="styles/tutorials.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One:wght@400&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="nav-title" data-i18n="nav-title">Math Games</h1>
+            <div class="nav-controls">
+                <button class="home-btn" id="homeBtn" data-i18n="nav-home">Home</button>
+                <button class="restart-btn" id="restartBtn" data-i18n="nav-restart" style="display: none;">Restart</button>
+                <div class="language-toggle">
+                    <button class="lang-btn active" data-lang="en">EN</button>
+                    <button class="lang-btn" data-lang="es">ES</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <main class="main-container">
+        <!-- Home Page -->
+        <div id="homePage" class="page active">
+            <div class="welcome-section">
+                <h1 class="main-title" data-i18n="welcome-title">Welcome to Math Games!</h1>
+                <p class="main-subtitle" data-i18n="welcome-subtitle">Choose a fun game to practice your math skills</p>
+            </div>
+            
+            <div class="games-grid">
+                <div class="game-card" data-game="number-line-leap">
+                    <div class="game-icon">🐸</div>
+                    <h3 data-i18n="game-1-title">Number Line Leap</h3>
+                    <p data-i18n="game-1-desc">Jump on the number line to solve addition and subtraction!</p>
+                    <div class="grade-level" data-i18n="grade-1">1st Grade</div>
+                </div>
+
+                <div class="game-card" data-game="math-stacker">
+                    <div class="game-icon">🔢</div>
+                    <h3 data-i18n="game-2-title">Math Stacker</h3>
+                    <p data-i18n="game-2-desc">Stack numbers vertically and practice carrying and borrowing!</p>
+                    <div class="grade-level" data-i18n="grade-2-3">2nd & 3rd Grade</div>
+                </div>
+
+                <div class="game-card" data-game="operation-pop">
+                    <div class="game-icon">🎈</div>
+                    <h3 data-i18n="game-3-title">Operation Pop!</h3>
+                    <p data-i18n="game-3-desc">Pop balloons with the correct math answers!</p>
+                    <div class="grade-level" data-i18n="grade-1-2">1st & 2nd Grade</div>
+                </div>
+
+                <div class="game-card" data-game="fact-family-farm">
+                    <div class="game-icon">🐄</div>
+                    <h3 data-i18n="game-4-title">Fact Family Farm</h3>
+                    <p data-i18n="game-4-desc">Help animals find their number bond partners!</p>
+                    <div class="grade-level" data-i18n="grade-1-2">1st & 2nd Grade</div>
+                </div>
+
+                <div class="game-card" data-game="place-value-puzzles">
+                    <div class="game-icon">🧩</div>
+                    <h3 data-i18n="game-5-title">Place Value Puzzles</h3>
+                    <p data-i18n="game-5-desc">Build numbers with hundreds, tens, and ones blocks!</p>
+                    <div class="grade-level" data-i18n="grade-2-3">2nd & 3rd Grade</div>
+                </div>
+
+                <div class="game-card" data-game="storekeeper-stories">
+                    <div class="game-icon">🏪</div>
+                    <h3 data-i18n="game-6-title">Storekeeper Stories</h3>
+                    <p data-i18n="game-6-desc">Solve real-world math word problems!</p>
+                    <div class="grade-level" data-i18n="grade-2-3">2nd & 3rd Grade</div>
+                </div>
+
+                <div class="game-card" data-game="pattern-painter">
+                    <div class="game-icon">🎨</div>
+                    <h3 data-i18n="game-7-title">Pattern Painter</h3>
+                    <p data-i18n="game-7-desc">Complete patterns and practice skip-counting!</p>
+                    <div class="grade-level" data-i18n="grade-1-2-3">1st, 2nd & 3rd Grade</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Pages will be dynamically loaded here -->
+        <div id="gamePage" class="page game-page">
+            <!-- Individual game content will be loaded here -->
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="js/i18n.js"></script>
+    <script src="js/achievements.js"></script>
+    <script src="js/achievement-ui.js"></script>
+    <script src="js/tutorials.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/games/number-line-leap.js"></script>
+    <script src="js/games/math-stacker.js"></script>
+    <script src="js/games/operation-pop.js"></script>
+    <script src="js/games/fact-family-farm.js"></script>
+    <script src="js/games/place-value-puzzles.js"></script>
+    <script src="js/games/storekeeper-stories.js"></script>
+    <script src="js/games/pattern-painter.js"></script>
+</body>
+</html>

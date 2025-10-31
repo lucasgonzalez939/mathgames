@@ -1,0 +1,473 @@
+/* Tutorial System Styles */
+
+/* Tutorial Overlay - Dark background */
+.tutorial-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 9998;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.tutorial-overlay.show {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* Tutorial Highlight - Spotlight effect */
+.tutorial-highlight {
+    position: fixed;
+    border: 3px solid #FFD700;
+    border-radius: 10px;
+    box-shadow: 
+        0 0 0 9999px rgba(0, 0, 0, 0.75),
+        0 0 20px rgba(255, 215, 0, 0.8),
+        inset 0 0 20px rgba(255, 215, 0, 0.3);
+    z-index: 9999;
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+
+.tutorial-highlight.pulse {
+    animation: highlightPulse 2s ease-in-out infinite;
+}
+
+@keyframes highlightPulse {
+    0%, 100% { 
+        box-shadow: 
+            0 0 0 9999px rgba(0, 0, 0, 0.75),
+            0 0 20px rgba(255, 215, 0, 0.8),
+            inset 0 0 20px rgba(255, 215, 0, 0.3);
+    }
+    50% { 
+        box-shadow: 
+            0 0 0 9999px rgba(0, 0, 0, 0.75),
+            0 0 30px rgba(255, 215, 0, 1),
+            inset 0 0 30px rgba(255, 215, 0, 0.5);
+    }
+}
+
+/* Tutorial Box - Instruction panel */
+.tutorial-box {
+    position: fixed;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+    max-width: 500px;
+    width: 90%;
+    z-index: 10000;
+    opacity: 0;
+    transform: scale(0.9);
+    transition: all 0.3s ease;
+}
+
+.tutorial-box.show {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Tutorial Header */
+.tutorial-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1.5rem;
+    border-radius: 20px 20px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.tutorial-icon {
+    font-size: 3rem;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    animation: tutorialIconBounce 1s ease-in-out infinite;
+}
+
+@keyframes tutorialIconBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+.tutorial-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    flex: 1;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Tutorial Content */
+.tutorial-content {
+    padding: 1.5rem;
+}
+
+.tutorial-text {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.tutorial-image {
+    text-align: center;
+    font-size: 4rem;
+    margin: 1rem 0;
+    animation: imageFloat 2s ease-in-out infinite;
+}
+
+@keyframes imageFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* Tutorial Footer */
+.tutorial-footer {
+    padding: 1rem 1.5rem 1.5rem;
+    border-top: 1px solid #e0e0e0;
+}
+
+.tutorial-progress {
+    text-align: center;
+    margin-bottom: 1rem;
+    color: #666;
+    font-weight: 600;
+}
+
+.progress-dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.progress-dots .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #d0d0d0;
+    transition: all 0.3s ease;
+}
+
+.progress-dots .dot.active {
+    background: #667eea;
+    transform: scale(1.3);
+    box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+}
+
+.progress-dots .dot.completed {
+    background: #4CAF50;
+}
+
+/* Tutorial Buttons */
+.tutorial-buttons {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+.tutorial-btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-height: 44px;
+}
+
+.skip-btn {
+    background: #e0e0e0;
+    color: #666;
+    margin-right: auto;
+}
+
+.skip-btn:hover {
+    background: #d0d0d0;
+    transform: translateY(-2px);
+}
+
+.back-btn {
+    background: #f5f5f5;
+    color: #333;
+    border: 2px solid #d0d0d0;
+}
+
+.back-btn:hover {
+    background: #e5e5e5;
+    transform: translateY(-2px);
+}
+
+.next-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.next-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.next-btn:active {
+    transform: translateY(0);
+}
+
+/* Arrow pointer from tutorial box to highlighted element */
+.tutorial-box::before {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    border: 15px solid transparent;
+}
+
+/* Tooltip arrow positions */
+.tutorial-box[data-arrow="top"]::before {
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-bottom-color: white;
+}
+
+.tutorial-box[data-arrow="bottom"]::before {
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-top-color: white;
+}
+
+.tutorial-box[data-arrow="left"]::before {
+    right: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    border-right-color: white;
+}
+
+.tutorial-box[data-arrow="right"]::before {
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    border-left-color: white;
+}
+
+/* Tutorial Skip Confirmation */
+.tutorial-skip-confirm {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    z-index: 10001;
+    text-align: center;
+    max-width: 400px;
+}
+
+.tutorial-skip-confirm h3 {
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+.tutorial-skip-confirm p {
+    margin-bottom: 1.5rem;
+    color: #666;
+}
+
+.tutorial-skip-confirm .buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .tutorial-box {
+        max-width: 95%;
+        margin: 10px;
+    }
+    
+    .tutorial-header {
+        padding: 1rem;
+    }
+    
+    .tutorial-icon {
+        font-size: 2.5rem;
+    }
+    
+    .tutorial-title {
+        font-size: 1.2rem;
+    }
+    
+    .tutorial-content {
+        padding: 1rem;
+    }
+    
+    .tutorial-text {
+        font-size: 1rem;
+    }
+    
+    .tutorial-buttons {
+        flex-direction: column;
+    }
+    
+    .skip-btn {
+        margin-right: 0;
+        order: 3;
+    }
+    
+    .back-btn {
+        order: 1;
+    }
+    
+    .next-btn {
+        order: 2;
+    }
+    
+    .tutorial-highlight {
+        border-width: 2px;
+    }
+}
+
+@media (max-width: 480px) {
+    .tutorial-box {
+        position: fixed !important;
+        left: 5% !important;
+        right: 5% !important;
+        top: auto !important;
+        bottom: 20px !important;
+        transform: none !important;
+        max-width: none;
+        width: auto;
+    }
+    
+    .tutorial-image {
+        font-size: 3rem;
+    }
+}
+
+/* Accessibility - High Contrast Mode */
+@media (prefers-contrast: high) {
+    .tutorial-highlight {
+        border-width: 4px;
+        border-color: #FFFF00;
+    }
+    
+    .tutorial-box {
+        border: 2px solid #000;
+    }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    .tutorial-box,
+    .tutorial-overlay,
+    .tutorial-highlight,
+    .tutorial-icon,
+    .tutorial-image,
+    .progress-dots .dot {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+/* Keyboard Focus Indicators */
+.tutorial-btn:focus {
+    outline: 3px solid #667eea;
+    outline-offset: 2px;
+}
+
+.tutorial-btn:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* Print - Hide tutorials when printing */
+@media print {
+    .tutorial-overlay,
+    .tutorial-highlight,
+    .tutorial-box {
+        display: none !important;
+    }
+}
+
+/* Tutorial Help Badge (optional - for showing tutorial is available) */
+.tutorial-help-badge {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    transition: all 0.3s ease;
+    animation: helpBadgePulse 2s ease-in-out infinite;
+}
+
+.tutorial-help-badge:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
+}
+
+@keyframes helpBadgePulse {
+    0%, 100% { 
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+    50% { 
+        box-shadow: 0 4px 30px rgba(102, 126, 234, 0.6);
+    }
+}
+
+/* Tutorial completion checkmark animation */
+@keyframes checkmark {
+    0% {
+        height: 0;
+        width: 0;
+        opacity: 1;
+    }
+    20% {
+        height: 0;
+        width: 10px;
+        opacity: 1;
+    }
+    40% {
+        height: 20px;
+        width: 10px;
+        opacity: 1;
+    }
+    100% {
+        height: 20px;
+        width: 10px;
+        opacity: 1;
+    }
+}
+
+.checkmark-circle {
+    stroke-dasharray: 166;
+    stroke-dashoffset: 166;
+    stroke-width: 2;
+    stroke-miterlimit: 10;
+    stroke: #4CAF50;
+    fill: none;
+    animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+@keyframes stroke {
+    100% {
+        stroke-dashoffset: 0;
+    }
+}
