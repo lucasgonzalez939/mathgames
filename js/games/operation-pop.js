@@ -42,8 +42,8 @@ class OperationPop extends BaseGame {
                 </div>
                 
                 <div class="game-controls">
-                    <button class="btn" id="startBtn">Start Game</button>
-                    <button class="btn btn-secondary" id="pauseBtn" style="display: none;">Pause</button>
+                    <button class="btn" id="startBtn" data-i18n="start-game">Start Game</button>
+                    <button class="btn btn-secondary" id="pauseBtn" style="display: none;" data-i18n="pause">Pause</button>
                 </div>
                 
                 <div class="feedback" id="feedback"></div>
@@ -121,12 +121,12 @@ class OperationPop extends BaseGame {
         const pauseBtn = document.getElementById('pauseBtn');
         
         if (this.gameActive) {
-            pauseBtn.textContent = 'Pause';
+            pauseBtn.textContent = i18n.get('pause');
             this.startGameTimer();
             this.startBalloonSpawning();
             this.startGameLoop();
         } else {
-            pauseBtn.textContent = 'Resume';
+            pauseBtn.textContent = i18n.get('resume');
             this.stopGameTimer();
             this.stopBalloonSpawning();
         }
@@ -139,7 +139,7 @@ class OperationPop extends BaseGame {
         
         // Update UI
         document.getElementById('startBtn').style.display = 'inline-block';
-        document.getElementById('startBtn').textContent = 'Play Again';
+        document.getElementById('startBtn').textContent = i18n.get('play-again');
         document.getElementById('pauseBtn').style.display = 'none';
         
         // Show results
@@ -386,20 +386,20 @@ class OperationPop extends BaseGame {
         let performance = '';
         
         if (this.balloonsPopped >= 30) {
-            performance = '🏆 Amazing!';
+            performance = i18n.get('performance-amazing');
         } else if (this.balloonsPopped >= 20) {
-            performance = '⭐ Great job!';
+            performance = i18n.get('performance-great');
         } else if (this.balloonsPopped >= 10) {
-            performance = '👍 Good work!';
+            performance = i18n.get('performance-good');
         } else {
-            performance = '💪 Keep practicing!';
+            performance = i18n.get('performance-practice');
         }
         
         message = `
             <div class="game-results">
                 <div class="performance">${performance}</div>
-                <div class="final-score">You popped ${this.balloonsPopped} correct balloons!</div>
-                <div class="target-info">Target was ${this.targetAnswer}</div>
+                <div class="final-score">${i18n.get('you-popped-balloons').replace('{count}', this.balloonsPopped)}</div>
+                <div class="target-info">${i18n.get('target-was').replace('{target}', this.targetAnswer)}</div>
             </div>
         `;
         

@@ -130,7 +130,87 @@ class I18n {
                 
                 // Error messages
                 'error-load': 'Error loading game. Please try again.',
-                'error-network': 'Network error. Please check your connection.'
+                'error-network': 'Network error. Please check your connection.',
+                
+                // Button labels
+                'check-answer': 'Check Answer',
+                'show-hint': 'Show Hint',
+                'how-to-play': 'How to Play',
+                'start-game': 'Start Game',
+                'pause': 'Pause',
+                'resume': 'Resume',
+                'new-pattern': 'New Pattern',
+                
+                // UI labels
+                'completed-problems': 'Completed Problems:',
+                'add-blocks': 'Add Blocks:',
+                'your-number': 'Your Number:',
+                
+                // Step indicators
+                'step-1': 'Step 1',
+                'step-2': 'Step 2',
+                
+                // Number Line Leap hints
+                'hint-too-small-forward': 'Too small! Try counting forward from',
+                'hint-too-big-need': 'Too big! You need',
+                'hint-too-small-subtract': 'Too small! Start at',
+                'hint-and-subtract': 'and subtract',
+                
+                // Math Stacker hints
+                'hint-since-borrow-prefix': 'Since',
+                'hint-borrow-tens': 'you need to borrow from the tens place.',
+                'hint-since-gte-10': 'Since this is ≥ 10, write',
+                'hint-and-carry-1': 'and carry 1.',
+                'hint-after-borrowing': 'After borrowing:',
+                'hint-carried': 'carried',
+                
+                // Operation Pop performance
+                'performance-amazing': '🏆 Amazing!',
+                'performance-great': '⭐ Great job!',
+                'performance-good': '👍 Good work!',
+                'performance-practice': '💪 Keep practicing!',
+                'you-popped-balloons': 'You popped {count} correct balloons!',
+                'target-was': 'Target was {target}',
+                
+                // Success messages
+                'all-pairs-found': '🏆 All pairs found! Great job! 🏆',
+                'story-problems-complete': 'Great job! You solved all the story problems!',
+                
+                // Place Value messages
+                'exceeds-target': 'That would exceed the target!',
+                'limit-reached': 'Maximum blocks reached!',
+                
+                // Encouraging messages
+                'encouraging-amazing': 'Amazing!',
+                'encouraging-fantastic': 'Fantastic!',
+                'encouraging-great': 'Great job!',
+                'encouraging-star': "You're a star!",
+                'encouraging-brilliant': 'Brilliant!',
+                'encouraging-wonderful': 'Wonderful!',
+                'encouraging-excellent': 'Excellent!',
+                'encouraging-super': 'Super work!',
+                'encouraging-did-it': 'You did it!',
+                'encouraging-perfect': 'Perfect!',
+                'encouraging-outstanding': 'Outstanding!',
+                'encouraging-awesome': "You're awesome!",
+                'encouraging-incredible': 'Incredible!',
+                'encouraging-way-to-go': 'Way to go!',
+                'encouraging-spectacular': 'Spectacular!',
+                
+                // Try again messages
+                'try-again-1': 'Try again! You can do it!',
+                'try-again-2': 'Almost there! Give it another try!',
+                'try-again-3': 'Not quite, but keep trying!',
+                'try-again-4': "You're learning! Try once more!",
+                'try-again-5': "Keep going! You've got this!",
+                'try-again-6': 'Good effort! Try again!',
+                'try-again-7': 'So close! One more time!',
+                'try-again-8': "You're getting better! Try again!",
+                
+                // Storekeeper Stories
+                'correct-operation': '✅ Correct operation! Now solve for the answer.',
+                'wrong-operation': '❌ Wrong operation. Try again!',
+                'wrong-answer-storekeeper': "❌ That's not correct. Try again!"
             },
             es: {
                 // Navigation
@@ -259,7 +339,87 @@ class I18n {
                 
                 // Error messages
                 'error-load': 'Error al cargar el juego. Por favor, inténtalo de nuevo.',
-                'error-network': 'Error de red. Por favor, verifica tu conexión.'
+                'error-network': 'Error de red. Por favor, verifica tu conexión.',
+                
+                // Button labels
+                'check-answer': 'Verificar Respuesta',
+                'show-hint': 'Mostrar Pista',
+                'how-to-play': 'Cómo Jugar',
+                'start-game': 'Iniciar Juego',
+                'pause': 'Pausar',
+                'resume': 'Reanudar',
+                'new-pattern': 'Nuevo Patrón',
+                
+                // UI labels
+                'completed-problems': 'Problemas Completados:',
+                'add-blocks': 'Añadir Bloques:',
+                'your-number': 'Tu Número:',
+                
+                // Step indicators
+                'step-1': 'Paso 1',
+                'step-2': 'Paso 2',
+                
+                // Number Line Leap hints
+                'hint-too-small-forward': '¡Muy pequeño! Intenta contar hacia adelante desde',
+                'hint-too-big-need': '¡Muy grande! Necesitas',
+                'hint-too-small-subtract': '¡Muy pequeño! Comienza en',
+                'hint-and-subtract': 'y resta',
+                
+                // Math Stacker hints
+                'hint-since-borrow-prefix': 'Ya que',
+                'hint-borrow-tens': 'necesitas pedir prestado del lugar de las decenas.',
+                'hint-since-gte-10': 'Ya que esto es ≥ 10, escribe',
+                'hint-and-carry-1': 'y lleva 1.',
+                'hint-after-borrowing': 'Después de pedir prestado:',
+                'hint-carried': 'llevado',
+                
+                // Operation Pop performance
+                'performance-amazing': '🏆 ¡Increíble!',
+                'performance-great': '⭐ ¡Excelente trabajo!',
+                'performance-good': '👍 ¡Buen trabajo!',
+                'performance-practice': '💪 ¡Sigue practicando!',
+                'you-popped-balloons': '¡Reventaste {count} globos correctos!',
+                'target-was': 'El objetivo era {target}',
+                
+                // Success messages
+                'all-pairs-found': '¡🏆 Todos los pares encontrados! ¡Excelente trabajo! 🏆',
+                'story-problems-complete': '¡Excelente trabajo! ¡Resolviste todos los problemas de historias!',
+                
+                // Place Value messages
+                'exceeds-target': '¡Eso excedería el objetivo!',
+                'limit-reached': '¡Máximo de bloques alcanzado!',
+                
+                // Encouraging messages
+                'encouraging-amazing': '¡Increíble!',
+                'encouraging-fantastic': '¡Fantástico!',
+                'encouraging-great': '¡Excelente trabajo!',
+                'encouraging-star': '¡Eres una estrella!',
+                'encouraging-brilliant': '¡Brillante!',
+                'encouraging-wonderful': '¡Maravilloso!',
+                'encouraging-excellent': '¡Excelente!',
+                'encouraging-super': '¡Súper trabajo!',
+                'encouraging-did-it': '¡Lo lograste!',
+                'encouraging-perfect': '¡Perfecto!',
+                'encouraging-outstanding': '¡Sobresaliente!',
+                'encouraging-awesome': '¡Eres asombroso!',
+                'encouraging-incredible': '¡Increíble!',
+                'encouraging-way-to-go': '¡Así se hace!',
+                'encouraging-spectacular': '¡Espectacular!',
+                
+                // Try again messages
+                'try-again-1': '¡Inténtalo de nuevo! ¡Tú puedes!',
+                'try-again-2': '¡Casi! ¡Inténtalo otra vez!',
+                'try-again-3': '¡No exactamente, pero sigue intentando!',
+                'try-again-4': '¡Estás aprendiendo! ¡Intenta una vez más!',
+                'try-again-5': '¡Sigue adelante! ¡Tú puedes!',
+                'try-again-6': '¡Buen esfuerzo! ¡Inténtalo de nuevo!',
+                'try-again-7': '¡Muy cerca! ¡Una vez más!',
+                'try-again-8': '¡Estás mejorando! ¡Inténtalo de nuevo!',
+                
+                // Storekeeper Stories
+                'correct-operation': '✅ ¡Operación correcta! Ahora resuelve para obtener la respuesta.',
+                'wrong-operation': '❌ ¡Operación incorrecta. Inténtalo de nuevo!',
+                'wrong-answer-storekeeper': '❌ ¡Eso no es correcto. Inténtalo de nuevo!'
             }
         };
         

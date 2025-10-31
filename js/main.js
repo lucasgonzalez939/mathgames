@@ -257,38 +257,40 @@ class MathGames {
     }
     
     static getEncouragingMessage() {
-        const messages = [
-            "Amazing!",
-            "Fantastic!",
-            "Great job!",
-            "You're a star!",
-            "Brilliant!",
-            "Wonderful!",
-            "Excellent!",
-            "Super work!",
-            "You did it!",
-            "Perfect!",
-            "Outstanding!",
-            "You're awesome!",
-            "Incredible!",
-            "Way to go!",
-            "Spectacular!"
+        const keys = [
+            'encouraging-amazing',
+            'encouraging-fantastic',
+            'encouraging-great',
+            'encouraging-star',
+            'encouraging-brilliant',
+            'encouraging-wonderful',
+            'encouraging-excellent',
+            'encouraging-super',
+            'encouraging-did-it',
+            'encouraging-perfect',
+            'encouraging-outstanding',
+            'encouraging-awesome',
+            'encouraging-incredible',
+            'encouraging-way-to-go',
+            'encouraging-spectacular'
         ];
-        return messages[Math.floor(Math.random() * messages.length)];
+        const randomKey = keys[Math.floor(Math.random() * keys.length)];
+        return i18n.get(randomKey);
     }
     
     static getTryAgainMessage() {
-        const messages = [
-            "Try again! You can do it!",
-            "Almost there! Give it another try!",
-            "Not quite, but keep trying!",
-            "You're learning! Try once more!",
-            "Keep going! You've got this!",
-            "Good effort! Try again!",
-            "So close! One more time!",
-            "You're getting better! Try again!"
+        const keys = [
+            'try-again-1',
+            'try-again-2',
+            'try-again-3',
+            'try-again-4',
+            'try-again-5',
+            'try-again-6',
+            'try-again-7',
+            'try-again-8'
         ];
-        return messages[Math.floor(Math.random() * messages.length)];
+        const randomKey = keys[Math.floor(Math.random() * keys.length)];
+        return i18n.get(randomKey);
     }
     
     static randomBetween(min, max) {

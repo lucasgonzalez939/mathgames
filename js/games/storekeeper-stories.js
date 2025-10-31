@@ -61,7 +61,7 @@ class StorekeeperStories extends BaseGame {
                     
                     <div class="answer-section" id="answerSection" style="display: none;">
                         <div class="instruction-text" data-i18n="storekeeper-enter-answer">Enter your answer</div>
-                        <button class="btn" id="checkAnswerBtn" disabled>Check Answer</button>
+                        <button class="btn" id="checkAnswerBtn" disabled data-i18n="check-answer">Check Answer</button>
                     </div>
                 </div>
                 
@@ -355,10 +355,10 @@ class StorekeeperStories extends BaseGame {
     showOperatorFeedback(isCorrect) {
         const feedback = document.getElementById('feedback');
         if (isCorrect) {
-            feedback.innerHTML = '<div class="success-message">✅ Correct operation! Now solve for the answer.</div>';
+            feedback.innerHTML = `<div class="success-message">${i18n.get('correct-operation')}</div>`;
             feedback.className = 'feedback success';
         } else {
-            feedback.innerHTML = '<div class="error-message">❌ Wrong operation. Try again!</div>';
+            feedback.innerHTML = `<div class="error-message">${i18n.get('wrong-operation')}</div>`;
             feedback.className = 'feedback error';
             
             // Reset operator selection after delay
@@ -431,7 +431,7 @@ class StorekeeperStories extends BaseGame {
         document.getElementById('checkAnswerBtn').disabled = true;
         
         const feedback = document.getElementById('feedback');
-        feedback.innerHTML = '<div class="error-message">❌ That\'s not correct. Try again!</div>';
+        feedback.innerHTML = `<div class="error-message">${i18n.get('wrong-answer-storekeeper')}</div>`;
         feedback.className = 'feedback error';
     // Record incorrect attempt for achievements/streaks
     this.recordIncorrectAnswer();
@@ -448,8 +448,8 @@ class StorekeeperStories extends BaseGame {
         feedback.innerHTML = `
             <div class="round-complete">
                 <div class="celebration">🏆</div>
-                <div class="completion-text">Great job! You solved all the story problems!</div>
-                <div class="score-info">You earned ${30 * this.problems.length * this.level} points!</div>
+                <div class="completion-text">${i18n.get('story-problems-complete')}</div>
+                <div class="score-info">${i18n.get('score')}: ${30 * this.problems.length * this.level}</div>
             </div>
         `;
         feedback.className = 'feedback success';

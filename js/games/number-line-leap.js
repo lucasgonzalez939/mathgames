@@ -286,15 +286,15 @@ class NumberLineLeap extends BaseGame {
         let hint = '';
         if (operator === '+') {
             if (selectedNumber < this.correctAnswer) {
-                hint = `Too small! Try counting forward from ${a}.`;
+                hint = `${i18n.get('hint-too-small-forward')} ${a}.`;
             } else {
-                hint = `Too big! You need ${a} + ${b}.`;
+                hint = `${i18n.get('hint-too-big-need')} ${a} + ${b}.`;
             }
         } else {
             if (selectedNumber < this.correctAnswer) {
-                hint = `Too small! Start at ${a} and subtract ${b}.`;
+                hint = `${i18n.get('hint-too-small-subtract')} ${a} ${i18n.get('hint-and-subtract')} ${b}.`;
             } else {
-                hint = `Too big! You need ${a} - ${b}.`;
+                hint = `${i18n.get('hint-too-big-need')} ${a} - ${b}.`;
             }
         }
         

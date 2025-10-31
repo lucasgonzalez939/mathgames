@@ -25,7 +25,7 @@ class PlaceValuePuzzles extends BaseGame {
                 
                 <div class="game-layout">
                     <div class="spawners-section">
-                        <div class="spawners-title">Add Blocks:</div>
+                        <div class="spawners-title" data-i18n="add-blocks">Add Blocks:</div>
                         <div class="spawner-buttons">
                             <button class="spawner-btn hundreds-btn" id="add100Btn">
                                 <div class="block-preview hundreds-block-preview"></div>
@@ -43,7 +43,7 @@ class PlaceValuePuzzles extends BaseGame {
                     </div>
                     
                     <div class="build-section">
-                        <div class="build-title">Your Number:</div>
+                        <div class="build-title" data-i18n="your-number">Your Number:</div>
                         <div class="current-total" id="currentTotal">0</div>
                         
                         <div class="build-area" id="buildArea">
@@ -74,7 +74,7 @@ class PlaceValuePuzzles extends BaseGame {
                 
                 <div class="game-controls">
                     <button class="btn btn-danger" id="resetBtn" data-i18n="placevalue-reset">Reset</button>
-                    <button class="btn btn-secondary" id="hintBtn">Show Hint</button>
+                    <button class="btn btn-secondary" id="hintBtn" data-i18n="show-hint">Show Hint</button>
                 </div>
                 
                 <div class="feedback" id="feedback"></div>
@@ -340,12 +340,11 @@ class PlaceValuePuzzles extends BaseGame {
     }
     
     showExceedsMessage() {
-        this.showFeedback('That would make the number too big! Target is ' + this.targetNumber, 'warning');
+        this.showFeedback(`${i18n.get('exceeds-target')} ${i18n.get('placevalue-total')}: ${this.targetNumber}`, 'warning');
     }
     
     showLimitMessage(type) {
-        const typeName = type === 'hundreds' ? 'hundred' : (type === 'tens' ? 'ten' : 'one');
-        this.showFeedback(`Maximum ${typeName} blocks reached!`, 'warning');
+        this.showFeedback(i18n.get('limit-reached'), 'warning');
     }
     
     disableSpawners() {
