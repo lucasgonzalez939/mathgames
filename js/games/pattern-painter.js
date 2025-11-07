@@ -63,7 +63,7 @@ class PatternPainter extends BaseGame {
                     <span data-i18n="streak">Streak</span>: <span id="streakCount">${this.consecutiveCorrect}</span>
                 </div>
                 
-                <div class="feedback" id="feedback"></div>
+                <div class="feedback" id="feedback" role="status" aria-live="polite"></div>
             </div>
         `;
         
@@ -120,6 +120,7 @@ class PatternPainter extends BaseGame {
     }
     
     generateNewPattern() {
+        this._hintUsed = false;
         switch(this.patternType) {
             case 'number':
                 this.generateNumberPattern();
@@ -155,51 +156,67 @@ class PatternPainter extends BaseGame {
             case 'multiplication':
                 this.generateMultiplicationPattern(selectedType.factor);
                 break;
+            case 'geometric':
+                this.generateMultiplicationPattern(selectedType.factor);
+                break;
             case 'fibonacci':
                 this.generateFibonacciPattern();
                 break;
             case 'alternating':
                 this.generateAlternatingPattern();
                 break;
+            case 'squares':
+                this.generateSquaresPattern();
+                break;
+            case 'increasingStep':
+                this.generateIncreasingStepPattern(selectedType.start || 1);
+                break;
+            case 'altAddSub':
+                this.generateAlternatingAddSubPattern(selectedType.aStep || 2, selectedType.bStep || 1);
+                break;
         }
     }
     
     getNumberPatternTypes() {
-        const types = [];
-        
-        switch(this.difficulty) {
-            case 'easy':
-                types.push(
-                    { type: 'addition', step: 1 },
-                    { type: 'addition', step: 2 },
-                    { type: 'addition', step: 5 },
-                    { type: 'subtraction', step: 1 },
-                    { type: 'subtraction', step: 2 }
-                );
-                break;
-            case 'medium':
-                types.push(
-                    { type: 'addition', step: 3 },
-                    { type: 'addition', step: 4 },
-                    { type: 'addition', step: 10 },
-                    { type: 'subtraction', step: 3 },
-                    { type: 'multiplication', factor: 2 },
-                    { type: 'alternating' }
-                );
-                break;
-            case 'hard':
-                types.push(
-                    { type: 'addition', step: 6 },
-                    { type: 'addition', step: 7 },
-                    { type: 'addition', step: 8 },
-                    { type: 'multiplication', factor: 3 },
-                    { type: 'fibonacci' },
-                    { type: 'alternating' }
-                );
-                break;
+        const list = [];
+        const streak = this.consecutiveCorrect || 0;
+        const add = (obj, w = 1) => { for (let i=0; i<w; i++) list.push(obj); };
+
+        if (this.difficulty === 'easy') {
+            add({ type: 'addition', step: 1 }, 2);
+            add({ type: 'addition', step: 2 }, 2);
+            add({ type: 'addition', step: 5 });
+            add({ type: 'subtraction', step: 1 }, 2);
+            add({ type: 'subtraction', step: 2 });
+        } else if (this.difficulty === 'medium') {
+            add({ type: 'addition', step: 3 }, 2);
+            add({ type: 'addition', step: 4 });
+            add({ type: 'addition', step: 10 });
+            add({ type: 'subtraction', step: 3 });
+            add({ type: 'multiplication', factor: 2 }, 2);
+            add({ type: 'alternating' });
+            add({ type: 'squares' });
+            add({ type: 'altAddSub', aStep: 2, bStep: 1 });
+        } else { // hard
+            add({ type: 'addition', step: 6 });
+            add({ type: 'addition', step: 7 });
+            add({ type: 'multiplication', factor: 3 }, 2);
+            add({ type: 'fibonacci' }, 2);
+            add({ type: 'alternating' });
+            add({ type: 'geometric', factor: 4 });
+            add({ type: 'squares' }, 2);
+            add({ type: 'increasingStep', start: 2 });
+            add({ type: 'altAddSub', aStep: 3, bStep: 2 });
         }
-        
-        return types;
+
+        if (streak >= 3) {
+            add({ type: 'multiplication', factor: 3 });
+            add({ type: 'fibonacci' });
+            add({ type: 'geometric', factor: 4 });
+            add({ type: 'squares' });
+        }
+
+        return list.length ? list : [{ type: 'addition', step: 1 }];
     }
     
     generateAdditionPattern(step) {
@@ -247,82 +264,287 @@ class PatternPainter extends BaseGame {
         this.nextInSequence = even;
     }
     
+    generateSquaresPattern() {
+        const startN = MathGames.randomBetween(1, 5);
+        this.currentPattern = [startN**2, (startN+1)**2, (startN+2)**2, (startN+3)**2];
+        this.nextInSequence = (startN+4) ** 2;
+        this.patternRule = { type: 'squares', startN };
+    }
+
+    generateIncreasingStepPattern(startStep = 1) {
+        const start = MathGames.randomBetween(1, 10);
+        const s1 = start + startStep;
+        const s2 = s1 + (startStep + 1);
+        const s3 = s2 + (startStep + 2);
+        this.currentPattern = [start, s1, s2, s3];
+        this.nextInSequence = s3 + (startStep + 3);
+        this.patternRule = { type: 'increasingStep', startStep };
+    }
+
+    generateAlternatingAddSubPattern(aStep = 2, bStep = 1) {
+        const start = MathGames.randomBetween(10, 30);
+        // +a, -b, +a, -b
+        const s1 = start + aStep;
+        const s2 = s1 - bStep;
+        const s3 = s2 + aStep;
+        this.currentPattern = [start, s1, s2, s3];
+        this.nextInSequence = s3 - bStep;
+        this.patternRule = { type: 'altAddSub', aStep, bStep };
+    }
+    
     generateColorPattern() {
         const colors = ['red', 'blue', 'green', 'yellow', 'purple', 'orange'];
         const patternLength = this.difficulty === 'easy' ? 2 : (this.difficulty === 'medium' ? 3 : 4);
-        
-        // Create base pattern
-        const basePattern = [];
-        for (let i = 0; i < patternLength; i++) {
-            basePattern.push(colors[i % colors.length]);
+
+        // Choose unique colors for base
+        const basePattern = MathGames.shuffleArray(colors).slice(0, patternLength);
+
+        // Occasionally use AABB/ABBA template on hard
+        let template = null;
+        if (this.difficulty === 'hard' && patternLength >= 2 && Math.random() < 0.5) {
+            template = Math.random() < 0.5 ? 'AABB' : 'ABBA';
         }
-        
-        // Repeat pattern
+
         this.currentPattern = [];
         const cycles = this.difficulty === 'easy' ? 2 : (this.difficulty === 'medium' ? 1.5 : 1);
         const totalLength = Math.floor(patternLength * cycles);
-        
+
         for (let i = 0; i < totalLength; i++) {
-            this.currentPattern.push(basePattern[i % patternLength]);
+            if (template === 'AABB') {
+                const idx = Math.floor((i % 4) / 2);
+                this.currentPattern.push(basePattern[idx]);
+            } else if (template === 'ABBA') {
+                const map = [0,1,1,0];
+                this.currentPattern.push(basePattern[map[i % 4]]);
+            } else {
+                this.currentPattern.push(basePattern[i % patternLength]);
+            }
         }
-        
-        this.nextInSequence = basePattern[totalLength % patternLength];
-        this.patternRule = { type: 'color', pattern: basePattern };
+
+        if (template) {
+            const nextIdx = template === 'AABB' ? Math.floor((totalLength % 4) / 2) : [0,1,1,0][totalLength % 4];
+            this.nextInSequence = basePattern[nextIdx];
+        } else {
+            this.nextInSequence = basePattern[totalLength % patternLength];
+        }
+        this.patternRule = { type: 'color', pattern: basePattern, template };
     }
     
     generateShapePattern() {
         const shapes = ['circle', 'square', 'triangle', 'star', 'heart', 'diamond'];
         const patternLength = this.difficulty === 'easy' ? 2 : (this.difficulty === 'medium' ? 3 : 4);
-        
-        // Create base pattern
-        const basePattern = [];
-        for (let i = 0; i < patternLength; i++) {
-            basePattern.push(shapes[i % shapes.length]);
+
+        const basePattern = MathGames.shuffleArray(shapes).slice(0, patternLength);
+
+        let template = null;
+        if (this.difficulty !== 'easy' && patternLength >= 2 && Math.random() < 0.4) {
+            template = Math.random() < 0.5 ? 'AABB' : 'ABBA';
         }
-        
-        // Repeat pattern
+
         this.currentPattern = [];
         const cycles = this.difficulty === 'easy' ? 2 : 1.5;
         const totalLength = Math.floor(patternLength * cycles);
-        
+
         for (let i = 0; i < totalLength; i++) {
-            this.currentPattern.push(basePattern[i % patternLength]);
+            if (template === 'AABB') {
+                const idx = Math.floor((i % 4) / 2);
+                this.currentPattern.push(basePattern[idx]);
+            } else if (template === 'ABBA') {
+                const map = [0,1,1,0];
+                this.currentPattern.push(basePattern[map[i % 4]]);
+            } else {
+                this.currentPattern.push(basePattern[i % patternLength]);
+            }
         }
-        
-        this.nextInSequence = basePattern[totalLength % patternLength];
-        this.patternRule = { type: 'shape', pattern: basePattern };
+
+        if (template) {
+            const nextIdx = template === 'AABB' ? Math.floor((totalLength % 4) / 2) : [0,1,1,0][totalLength % 4];
+            this.nextInSequence = basePattern[nextIdx];
+        } else {
+            this.nextInSequence = basePattern[totalLength % patternLength];
+        }
+        this.patternRule = { type: 'shape', pattern: basePattern, template };
     }
     
     generateAnswerOptions() {
-        this.answerOptions = [this.nextInSequence];
-        
-        // Generate distractors based on pattern type
-        while (this.answerOptions.length < 4) {
-            let distractor;
-            
+        // Safety: ensure nextInSequence is valid to avoid infinite loops
+        if (this.nextInSequence === undefined || this.nextInSequence === null) {
+            console.warn('PatternPainter: nextInSequence was not set. Regenerating pattern.');
+            // Regenerate a simple safe pattern based on current type
             if (this.patternType === 'number') {
-                if (typeof this.nextInSequence === 'number') {
-                    distractor = this.nextInSequence + MathGames.randomBetween(-5, 5);
-                    if (distractor <= 0) distractor = this.nextInSequence + MathGames.randomBetween(1, 5);
+                this.generateAdditionPattern(1);
+            } else if (this.patternType === 'color') {
+                this.generateColorPattern();
+            } else {
+                this.generateShapePattern();
+            }
+        }
+
+        this.answerOptions = [this.nextInSequence];
+
+        const colors = ['red', 'blue', 'green', 'yellow', 'purple', 'orange'];
+        const shapes = ['circle', 'square', 'triangle', 'star', 'heart', 'diamond'];
+        
+        // Pattern-aware distractors for numbers
+        if (this.patternType === 'number') {
+            const suggestions = this.generatePatternAwareNumberDistractors();
+            for (const s of suggestions) {
+                if (this.answerOptions.length >= 4) break;
+                if (s !== undefined && s !== null && !Number.isNaN(s) && !this.answerOptions.includes(s)) {
+                    this.answerOptions.push(s);
+                }
+            }
+        }
+
+        // Generate remaining distractors with attempt cap to prevent infinite loops
+        let attempts = 0;
+        while (this.answerOptions.length < 4 && attempts < 100) {
+            attempts++;
+            let distractor;
+            if (this.patternType === 'number') {
+                if (typeof this.nextInSequence === 'number' && !Number.isNaN(this.nextInSequence)) {
+                    const span = Math.max(5, Math.floor(Math.abs(this.nextInSequence) * 0.2));
+                    const delta = MathGames.randomBetween(-span, span) || 1; // avoid zero delta
+                    distractor = this.nextInSequence + delta;
+                    if (distractor <= 0) distractor = this.nextInSequence + Math.abs(delta);
                 }
             } else if (this.patternType === 'color') {
-                const colors = ['red', 'blue', 'green', 'yellow', 'purple', 'orange'];
                 distractor = colors[Math.floor(Math.random() * colors.length)];
             } else if (this.patternType === 'shape') {
-                const shapes = ['circle', 'square', 'triangle', 'star', 'heart', 'diamond'];
                 distractor = shapes[Math.floor(Math.random() * shapes.length)];
             }
-            
-            if (distractor && !this.answerOptions.includes(distractor)) {
+            if (distractor !== undefined && distractor !== null && !this.answerOptions.includes(distractor)) {
                 this.answerOptions.push(distractor);
             }
         }
-        
-        // Shuffle options
+
+        // Fallbacks if we still lack options
+        if (this.answerOptions.length < 4) {
+            if (this.patternType === 'number') {
+                const base = (typeof this.nextInSequence === 'number' && !Number.isNaN(this.nextInSequence)) ? this.nextInSequence : 1;
+                for (let k = 1; this.answerOptions.length < 4 && k <= 4; k++) {
+                    const cand = base + k;
+                    if (!this.answerOptions.includes(cand)) this.answerOptions.push(cand);
+                }
+            } else if (this.patternType === 'color') {
+                for (const c of colors) {
+                    if (this.answerOptions.length >= 4) break;
+                    if (!this.answerOptions.includes(c)) this.answerOptions.push(c);
+                }
+            } else if (this.patternType === 'shape') {
+                for (const s of shapes) {
+                    if (this.answerOptions.length >= 4) break;
+                    if (!this.answerOptions.includes(s)) this.answerOptions.push(s);
+                }
+            }
+        }
+
         this.answerOptions = MathGames.shuffleArray(this.answerOptions);
+    }
+
+    generatePatternAwareNumberDistractors() {
+        const out = [];
+        const next = this.nextInSequence;
+        const last = this.currentPattern[this.currentPattern.length - 1];
+        const prev = this.currentPattern[this.currentPattern.length - 2];
+        const pr = this.patternRule || {};
+
+        const push = (v) => {
+            if (v === undefined || v === null) return;
+            if (Number.isNaN(v)) return;
+            if (v <= 0) return;
+            if (v === next) return;
+            if (!out.includes(v)) out.push(v);
+        };
+
+        switch (pr.type) {
+            case 'addition': {
+                const s = pr.step || 1;
+                push(next + s);
+                push(next - s);
+                push(last);
+                push(next + 1);
+                break;
+            }
+            case 'subtraction': {
+                const s = pr.step || 1;
+                push(next + s);
+                push(next - s);
+                push(last);
+                push(next - 1);
+                break;
+            }
+            case 'multiplication':
+            case 'geometric': {
+                const f = pr.factor || 2;
+                push(next * f);
+                if (next % f === 0) push(next / f);
+                push(last * f);
+                push(next + f);
+                break;
+            }
+            case 'fibonacci': {
+                if (typeof last === 'number' && typeof prev === 'number') {
+                    push(last * 2);
+                    push(prev * 2);
+                    push(last + prev - 1);
+                    push(last + prev + 1);
+                }
+                break;
+            }
+            case 'alternating': {
+                const set = new Set(this.currentPattern);
+                for (const v of set) { if (v !== next) push(v); }
+                push(last + 1);
+                push(last - 1);
+                break;
+            }
+            case 'squares': {
+                const root = Math.round(Math.sqrt(next));
+                push((root + 1) ** 2);
+                if (root - 1 > 0) push((root - 1) ** 2);
+                push(next + (2 * root + 1));
+                push(last);
+                break;
+            }
+            case 'increasingStep': {
+                if (typeof last === 'number' && typeof prev === 'number') {
+                    const lastInc = last - prev;
+                    push(last + lastInc);
+                    push(last + lastInc + 2);
+                }
+                push(last);
+                break;
+            }
+            case 'altAddSub': {
+                const a = pr.aStep || 2;
+                const b = pr.bStep || 1;
+                const reachedByPlus = next > last;
+                if (reachedByPlus) {
+                    push(last - b);
+                } else {
+                    push(last + a);
+                }
+                push(last);
+                push(next + (reachedByPlus ? -1 : 1));
+                break;
+            }
+        }
+        return out;
     }
     
     renderPattern() {
+        // Reset mystery block and feedback so previous answer doesn't persist
+        const nextBlock = document.getElementById('nextBlock');
+        if (nextBlock) {
+            nextBlock.classList.remove('correct-reveal', 'wrong-reveal');
+            nextBlock.innerHTML = '<span class="mystery-symbol">?</span>';
+        }
+        const feedback = document.getElementById('feedback');
+        if (feedback) {
+            feedback.textContent = '';
+            feedback.className = 'feedback';
+        }
         this.renderPatternSequence();
         this.renderAnswerOptions();
         this.updateStreakDisplay();
@@ -363,6 +585,14 @@ class PatternPainter extends BaseGame {
             return `<span class="shape-emoji">${shapeEmojis[item] || '⭕'}</span>`;
         }
     }
+
+    // Accessible text for answer options
+    describeOption(option) {
+        if (this.patternType === 'number') return String(option);
+        if (this.patternType === 'color') return String(option);
+        if (this.patternType === 'shape') return String(option);
+        return String(option);
+    }
     
     renderAnswerOptions() {
         const container = document.getElementById('answerOptions');
@@ -373,6 +603,7 @@ class PatternPainter extends BaseGame {
             optionBtn.className = 'answer-option';
             // Store the logical value for strict comparison later
             optionBtn.setAttribute('data-value', typeof option === 'number' ? option.toString() : option);
+            optionBtn.setAttribute('aria-label', `Answer option ${index + 1}: ${this.describeOption(option)}`);
             optionBtn.innerHTML = `
                 <div class="option-content">${this.getBlockContent(option)}</div>
                 <div class="option-number">${index + 1}</div>
@@ -420,16 +651,21 @@ class PatternPainter extends BaseGame {
             btn.disabled = true;
         });
         
-        // Show success feedback
-        this.showFeedback('🎉 ' + i18n.get('pattern-continue'), 'success');
+        // Show success feedback (guard i18n availability)
+        const continueMsg = (typeof i18n !== 'undefined' && typeof i18n.get === 'function')
+            ? i18n.get('pattern-continue')
+            : 'Great! Keep going!';
+        this.showFeedback('🎉 ' + continueMsg, 'success');
         
-        // Award points
-        this.updateScore(20 * this.level * (this.consecutiveCorrect > 3 ? 2 : 1));
+    // Award points (reduced if hint used)
+    const basePoints = 20 * this.level * (this.consecutiveCorrect > 3 ? 2 : 1);
+    this.updateScore(this._hintUsed ? Math.max(5, Math.floor(basePoints * 0.6)) : basePoints);
         // Record achievement progress
         this.recordCorrectAnswer();
         
         // Extend pattern or generate new one
         setTimeout(() => {
+            this._hintUsed = false;
             if (this.consecutiveCorrect % 3 === 0) {
                 // Generate completely new pattern every 3 correct answers
                 if (this.score > 0 && this.score % 100 === 0) {
@@ -467,7 +703,10 @@ class PatternPainter extends BaseGame {
         nextBlock.innerHTML = this.getBlockContent(this.nextInSequence);
         nextBlock.classList.add('wrong-reveal');
         
-        this.showFeedback('❌ ' + i18n.get('try-again'), 'error');
+        const tryAgainMsg = (typeof i18n !== 'undefined' && typeof i18n.get === 'function')
+            ? i18n.get('try-again')
+            : 'Try again!';
+        this.showFeedback('❌ ' + tryAgainMsg, 'error');
         // Record incorrect attempt
         this.recordIncorrectAnswer();
         
@@ -493,21 +732,41 @@ class PatternPainter extends BaseGame {
     }
     
     extendNumberPattern() {
-        if (this.patternRule.type === 'addition') {
-            this.nextInSequence += this.patternRule.step;
-        } else if (this.patternRule.type === 'subtraction') {
-            this.nextInSequence -= this.patternRule.step;
-        } else if (this.patternRule.type === 'multiplication') {
-            this.nextInSequence *= this.patternRule.factor;
-        } else if (this.patternRule.type === 'fibonacci') {
+        const pr = this.patternRule || {};
+        if (pr.type === 'addition') {
+            this.nextInSequence += pr.step;
+        } else if (pr.type === 'subtraction') {
+            this.nextInSequence -= pr.step;
+        } else if (pr.type === 'multiplication' || pr.type === 'geometric') {
+            this.nextInSequence *= pr.factor;
+        } else if (pr.type === 'fibonacci') {
             const last = this.currentPattern[this.currentPattern.length - 1];
             const secondLast = this.currentPattern[this.currentPattern.length - 2];
             this.nextInSequence = last + secondLast;
-        } else if (this.patternRule.type === 'alternating') {
-            // Alternate between the two values
-            const current = this.currentPattern[this.currentPattern.length - 1];
-            const prev = this.currentPattern[this.currentPattern.length - 2];
-            this.nextInSequence = this.nextInSequence === current ? prev : current;
+        } else if (pr.type === 'alternating') {
+            // Alternate between the distinct values observed
+            const set = Array.from(new Set(this.currentPattern));
+            if (set.length >= 2) {
+                this.nextInSequence = (this.nextInSequence === set[0]) ? set[1] : set[0];
+            } else {
+                const current = this.currentPattern[this.currentPattern.length - 1];
+                const prev = this.currentPattern[this.currentPattern.length - 2];
+                this.nextInSequence = this.nextInSequence === current ? prev : current;
+            }
+        } else if (pr.type === 'squares') {
+            const root = Math.round(Math.sqrt(this.nextInSequence));
+            this.nextInSequence = (root + 1) ** 2;
+        } else if (pr.type === 'increasingStep') {
+            const last = this.currentPattern[this.currentPattern.length - 1];
+            const L = this.currentPattern.length; // includes start at index 0
+            this.nextInSequence = last + (pr.startStep + (L - 1));
+        } else if (pr.type === 'altAddSub') {
+            const last = this.currentPattern[this.currentPattern.length - 1];
+            const a = pr.aStep || 2;
+            const b = pr.bStep || 1;
+            const L = this.currentPattern.length; // next index is L
+            const delta = (L % 2 === 1) ? +a : -b;
+            this.nextInSequence = last + delta;
         }
     }
     
@@ -520,6 +779,7 @@ class PatternPainter extends BaseGame {
     showHint() {
         const ruleHint = document.getElementById('ruleHint');
         let hintText = '';
+        this._hintUsed = true;
         
         if (this.patternType === 'number') {
             if (this.patternRule.type === 'addition') {
@@ -528,10 +788,18 @@ class PatternPainter extends BaseGame {
                 hintText = `Each number decreases by ${this.patternRule.step}`;
             } else if (this.patternRule.type === 'multiplication') {
                 hintText = `Each number is multiplied by ${this.patternRule.factor}`;
+            } else if (this.patternRule.type === 'geometric') {
+                hintText = `Each number is multiplied by ${this.patternRule.factor}`;
             } else if (this.patternRule.type === 'fibonacci') {
                 hintText = 'Each number is the sum of the two numbers before it';
             } else if (this.patternRule.type === 'alternating') {
                 hintText = 'The pattern alternates between two numbers';
+            } else if (this.patternRule.type === 'squares') {
+                hintText = 'These are perfect squares (n×n): 1, 4, 9, 16, ...';
+            } else if (this.patternRule.type === 'increasingStep') {
+                hintText = 'The step increases by 1 each time (e.g., +2, +3, +4, ...)';
+            } else if (this.patternRule.type === 'altAddSub') {
+                hintText = `It alternates: +${this.patternRule.aStep}, then -${this.patternRule.bStep}`;
             }
         } else if (this.patternType === 'color') {
             hintText = `The colors repeat in this pattern: ${this.patternRule.pattern.join(', ')}`;
@@ -1009,5 +1277,10 @@ const patternPainterCSS = `
 </style>
 `;
 
-// Inject CSS
-document.head.insertAdjacentHTML('beforeend', patternPainterCSS);
+// Inject CSS once to avoid duplicate styles and memory growth
+if (!document.getElementById('pattern-painter-style')) {
+    const styleContainer = document.createElement('div');
+    styleContainer.id = 'pattern-painter-style';
+    styleContainer.innerHTML = patternPainterCSS;
+    document.head.appendChild(styleContainer);
+}

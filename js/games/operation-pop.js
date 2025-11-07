@@ -12,6 +12,11 @@ class OperationPop extends BaseGame {
         this.balloonsPopped = 0;
         this.nextBalloonId = 1;
         this.balloonSpawnInterval = null;
+        // Speed and rules tuning (will be set per difficulty)
+        this.speedBase = 0.6;
+        this.speedIncrement = 0.03;
+        this.speedMax = 1.5;
+        this.allowedOperations = ['+'];
     }
     
     getTitleKey() {
@@ -81,14 +86,26 @@ class OperationPop extends BaseGame {
             case 'easy':
                 this.targetAnswer = MathGames.randomBetween(5, 10);
                 this.gameTime = 120; // More time for easy mode (2 minutes)
+                this.allowedOperations = ['+'];
+                this.speedBase = 0.4;       // very gentle start
+                this.speedIncrement = 0.02; // small increase per correct pop
+                this.speedMax = 1.0;        // easy cap
                 break;
             case 'medium':
                 this.targetAnswer = MathGames.randomBetween(8, 15);
                 this.gameTime = 90; // 1.5 minutes
+                this.allowedOperations = ['+', '-'];
+                this.speedBase = 0.6;
+                this.speedIncrement = 0.03;
+                this.speedMax = 1.5;
                 break;
             case 'hard':
                 this.targetAnswer = MathGames.randomBetween(10, 20);
                 this.gameTime = 60; // 1 minute
+                this.allowedOperations = ['+', '-', '*']; // introduce multiplication sometimes
+                this.speedBase = 0.8;
+                this.speedIncrement = 0.04;
+                this.speedMax = 2.0; // keep visible/readable
                 break;
         }
         
@@ -205,14 +222,17 @@ class OperationPop extends BaseGame {
             answer = this.evaluateEquation(equation);
         }
         
+        const currentSpeed = Math.min(this.speedBase + this.balloonsPopped * this.speedIncrement, this.speedMax);
+        const speed = this.randomFloat(Math.max(0.2, currentSpeed * 0.8), currentSpeed * 1.2);
+
         const balloon = {
             id: this.nextBalloonId++,
             equation: equation,
             answer: answer,
             isCorrect: isCorrect,
             x: MathGames.randomBetween(10, 90), // percentage
-            y: 100, // start from bottom
-            speed: this.difficulty === 'easy' ? MathGames.randomBetween(0.3, 0.8) : MathGames.randomBetween(0.5, 1.5), // Slower in easy mode
+            y: -15, // start slightly below the visible area
+            speed: speed,
             color: this.getBalloonColor(isCorrect)
         };
         
@@ -221,58 +241,100 @@ class OperationPop extends BaseGame {
     }
     
     generateCorrectEquation() {
-        const operations = ['+', '-'];
-        const operation = operations[Math.floor(Math.random() * operations.length)];
-        
+        // Choose an operation allowed for this difficulty
+        let ops = this.allowedOperations;
+        let operation = ops[Math.floor(Math.random() * ops.length)];
+
+        // Try to build a correct equation that equals targetAnswer
         if (operation === '+') {
-            const a = MathGames.randomBetween(1, this.targetAnswer - 1);
+            const a = MathGames.randomBetween(1, Math.max(2, this.targetAnswer - 1));
             const b = this.targetAnswer - a;
             return `${a}+${b}`;
-        } else {
+        } else if (operation === '-') {
             const a = MathGames.randomBetween(this.targetAnswer, this.targetAnswer + 10);
             const b = a - this.targetAnswer;
             return `${a}-${b}`;
+        } else if (operation === '*') {
+            // Only possible if targetAnswer has factors in 2..12 range
+            const factors = [];
+            for (let i = 2; i <= 12; i++) {
+                if (this.targetAnswer % i === 0) {
+                    const j = this.targetAnswer / i;
+                    if (j >= 2 && j <= 12) factors.push([i, j]);
+                }
+            }
+            if (factors.length) {
+                const pair = factors[Math.floor(Math.random() * factors.length)];
+                return `${pair[0]}*${pair[1]}`;
+            } else {
+                // Fallback to addition if multiplication can't hit the target
+                const a = MathGames.randomBetween(1, Math.max(2, this.targetAnswer - 1));
+                const b = this.targetAnswer - a;
+                return `${a}+${b}`;
+            }
         }
+        // Default fallback
+        const a = MathGames.randomBetween(1, Math.max(2, this.targetAnswer - 1));
+        const b = this.targetAnswer - a;
+        return `${a}+${b}`;
     }
     
     generateIncorrectEquation() {
-        const operations = ['+', '-'];
-        const operation = operations[Math.floor(Math.random() * operations.length)];
+        // Choose an operation from those allowed; rotate until we get one not equal to target
         let equation;
-        
+        let safety = 0;
         do {
+            const ops = this.allowedOperations;
+            const operation = ops[Math.floor(Math.random() * ops.length)];
             if (operation === '+') {
-                const a = MathGames.randomBetween(1, 15);
-                const b = MathGames.randomBetween(1, 15);
+                const a = MathGames.randomBetween(1, 20);
+                const b = MathGames.randomBetween(1, 20);
                 equation = `${a}+${b}`;
-            } else {
-                const a = MathGames.randomBetween(5, 20);
-                const b = MathGames.randomBetween(1, a);
+            } else if (operation === '-') {
+                const a = MathGames.randomBetween(1, 25);
+                const b = MathGames.randomBetween(0, a); // allow zero to broaden variety
                 equation = `${a}-${b}`;
+            } else if (operation === '*') {
+                const a = MathGames.randomBetween(2, 12);
+                const b = MathGames.randomBetween(2, 12);
+                equation = `${a}*${b}`;
             }
+            safety++;
+            if (safety > 50) break; // avoid infinite loop
         } while (this.evaluateEquation(equation) === this.targetAnswer);
-        
         return equation;
     }
     
     evaluateEquation(equation) {
-        // Simple equation evaluator for addition and subtraction
+        // Simple equation evaluator for one-operator expressions: +, -, *
         if (equation.includes('+')) {
             const parts = equation.split('+');
             return parseInt(parts[0]) + parseInt(parts[1]);
         } else if (equation.includes('-')) {
             const parts = equation.split('-');
             return parseInt(parts[0]) - parseInt(parts[1]);
+        } else if (equation.includes('*')) {
+            const parts = equation.split('*');
+            return parseInt(parts[0]) * parseInt(parts[1]);
         }
         return 0;
     }
     
-    getBalloonColor(isCorrect) {
-        if (isCorrect) {
-            return ['#4CAF50', '#8BC34A', '#CDDC39'][Math.floor(Math.random() * 3)];
-        } else {
-            return ['#F44336', '#FF5722', '#FF9800'][Math.floor(Math.random() * 3)];
-        }
+    getBalloonColor(_isCorrect) {
+        // Colors are random and not tied to correctness to avoid implicit feedback
+        const palette = [
+            '#3F51B5', // indigo
+            '#673AB7', // deep purple
+            '#8E24AA', // purple
+            '#D81B60', // pink (dark)
+            '#1976D2', // blue
+            '#0097A7', // cyan (dark)
+            '#00897B', // teal (dark)
+            '#5D4037', // brown
+            '#455A64', // blue grey
+            '#F57C00'  // deep orange (sufficient contrast with white)
+        ];
+        return palette[Math.floor(Math.random() * palette.length)];
     }
     
     createBalloonElement(balloon) {
@@ -308,14 +370,14 @@ class OperationPop extends BaseGame {
     startGameLoop() {
         if (!this.gameActive) return;
         
-        // Update balloon positions
+        // Update balloon positions (rise from bottom to top)
         this.activeBalloons.forEach(balloon => {
-            balloon.y -= balloon.speed;
+            balloon.y += balloon.speed;
         });
         
-        // Remove balloons that are off-screen
+        // Remove balloons that are off-screen (top)
         this.activeBalloons = this.activeBalloons.filter(balloon => {
-            if (balloon.y < -10) {
+            if (balloon.y > 110) {
                 const element = document.querySelector(`[data-id="${balloon.id}"]`);
                 if (element) {
                     element.remove();
@@ -378,6 +440,11 @@ class OperationPop extends BaseGame {
         
         // Remove balloon from active list
         this.activeBalloons.splice(balloonIndex, 1);
+    }
+
+    // Helper: random float between min and max
+    randomFloat(min, max) {
+        return Math.random() * (max - min) + min;
     }
     
     showGameResults() {

@@ -85,33 +85,53 @@ class MathGames {
         const gamePage = document.getElementById('gamePage');
         gamePage.innerHTML = '';
         
-        // Load the specific game
-        switch(gameType) {
-            case 'number-line-leap':
-                this.gameInstances[gameType] = new NumberLineLeap(gamePage);
-                break;
-            case 'math-stacker':
-                this.gameInstances[gameType] = new MathStacker(gamePage);
-                break;
-            case 'operation-pop':
-                this.gameInstances[gameType] = new OperationPop(gamePage);
-                break;
-            case 'fact-family-farm':
-                this.gameInstances[gameType] = new FactFamilyFarm(gamePage);
-                break;
-            case 'place-value-puzzles':
-                this.gameInstances[gameType] = new PlaceValuePuzzles(gamePage);
-                break;
-            case 'storekeeper-stories':
-                this.gameInstances[gameType] = new StorekeeperStories(gamePage);
-                break;
-            case 'pattern-painter':
-                this.gameInstances[gameType] = new PatternPainter(gamePage);
-                break;
-            default:
-                console.error('Unknown game type:', gameType);
-                this.showHomePage();
-                return;
+        // Load the specific game with a safety net to surface errors in UI
+        try {
+            switch(gameType) {
+                case 'number-line-leap':
+                    this.gameInstances[gameType] = new NumberLineLeap(gamePage);
+                    break;
+                case 'math-stacker':
+                    this.gameInstances[gameType] = new MathStacker(gamePage);
+                    break;
+                case 'operation-pop':
+                    this.gameInstances[gameType] = new OperationPop(gamePage);
+                    break;
+                case 'fact-family-farm':
+                    this.gameInstances[gameType] = new FactFamilyFarm(gamePage);
+                    break;
+                case 'place-value-puzzles':
+                    this.gameInstances[gameType] = new PlaceValuePuzzles(gamePage);
+                    break;
+                case 'storekeeper-stories':
+                    if (typeof StorekeeperStories !== 'function') {
+                        throw new Error('StorekeeperStories is not available. Check that js/games/storekeeper-stories.js is loaded.');
+                    }
+                    this.gameInstances[gameType] = new StorekeeperStories(gamePage);
+                    break;
+                case 'pattern-painter':
+                    if (typeof PatternPainter !== 'function') {
+                        throw new Error('PatternPainter is not available. Check that js/games/pattern-painter.js is loaded.');
+                    }
+                    this.gameInstances[gameType] = new PatternPainter(gamePage);
+                    break;
+                default:
+                    console.error('Unknown game type:', gameType);
+                    this.showHomePage();
+                    return;
+            }
+        } catch (err) {
+            console.error('Failed to load game', gameType, err);
+            gamePage.innerHTML = `
+                <div class="error-panel">
+                    <h3>Oops! We couldn't load this game.</h3>
+                    <p>${(err && err.message) ? err.message : 'An unexpected error occurred.'}</p>
+                    <button class="btn" id="backHomeBtn">Back to Home</button>
+                </div>
+            `;
+            const backHomeBtn = document.getElementById('backHomeBtn');
+            if (backHomeBtn) backHomeBtn.addEventListener('click', () => this.showHomePage());
+            return;
         }
         
         // Update page title

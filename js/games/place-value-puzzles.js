@@ -179,18 +179,6 @@ class PlaceValuePuzzles extends BaseGame {
     }
     
     addBlock(type) {
-        // Check if adding this block would exceed the target
-        let testTotal = this.currentTotal;
-        if (type === 'hundreds') testTotal += 100;
-        else if (type === 'tens') testTotal += 10;
-        else if (type === 'ones') testTotal += 1;
-        
-        if (testTotal > this.targetNumber) {
-            this.playSound('wrong');
-            this.showExceedsMessage();
-            return;
-        }
-        
         // Check block limits
         if (this.currentBuild[type] >= this.maxBlocks[type]) {
             this.playSound('wrong');
@@ -253,6 +241,8 @@ class PlaceValuePuzzles extends BaseGame {
             const block = document.createElement('div');
             block.className = 'hundreds-block';
             block.innerHTML = this.createHundredsBlockContent();
+            block.title = 'Remove 100';
+            block.addEventListener('click', () => this.removeBlock('hundreds'));
             container.appendChild(block);
         }
     }
@@ -265,6 +255,8 @@ class PlaceValuePuzzles extends BaseGame {
             const block = document.createElement('div');
             block.className = 'tens-block';
             block.innerHTML = this.createTensBlockContent();
+            block.title = 'Remove 10';
+            block.addEventListener('click', () => this.removeBlock('tens'));
             container.appendChild(block);
         }
     }
@@ -276,6 +268,9 @@ class PlaceValuePuzzles extends BaseGame {
         for (let i = 0; i < this.currentBuild.ones; i++) {
             const block = document.createElement('div');
             block.className = 'ones-block';
+            block.innerHTML = this.createOnesBlockContent();
+            block.title = 'Remove 1';
+            block.addEventListener('click', () => this.removeBlock('ones'));
             container.appendChild(block);
         }
     }
@@ -298,6 +293,11 @@ class PlaceValuePuzzles extends BaseGame {
         }
         content += '</div>';
         return content;
+    }
+    
+    createOnesBlockContent() {
+        // Single unit to visually match tens/hundreds style
+        return '<div class="unit-square"></div>';
     }
     
     onTargetReached() {
@@ -326,8 +326,7 @@ class PlaceValuePuzzles extends BaseGame {
     
     onExceededTarget() {
         this.playSound('wrong');
-        this.showFeedback('Oops! You went over ' + this.targetNumber + '. Use the Reset button to try again.', 'error');
-        this.disableSpawners();
+        this.showFeedback('Oops! You went over ' + this.targetNumber + '. Tap blocks to remove some, or press Reset.', 'error');
         // Record incorrect attempt as feedback for achievements/streaks
         this.recordIncorrectAnswer();
         
@@ -337,6 +336,16 @@ class PlaceValuePuzzles extends BaseGame {
         setTimeout(() => {
             currentTotal.classList.remove('exceeded');
         }, 1000);
+    }
+
+    removeBlock(type) {
+        if (this.currentBuild[type] <= 0) return;
+        this.currentBuild[type]--;
+        this.calculateTotal();
+        this.renderBlocks();
+        this.updateCalculation();
+        // Re-enable spawners in case they were disabled by success
+        this.enableSpawners();
     }
     
     showExceedsMessage() {
@@ -689,6 +698,11 @@ const placeValuePuzzlesCSS = `
     border-radius: 4px;
     margin: 1px;
     animation: slideIn 0.3s ease-out;
+}
+
+.ones-block .unit-square {
+    width: 100%;
+    height: 100%;
 }
 
 .unit-square {

@@ -57,6 +57,14 @@ class StorekeeperStories extends BaseGame {
                             <span class="operator-symbol">−</span>
                             <span class="operator-name" data-i18n="subtraction">Subtraction</span>
                         </button>
+                        <button class="operator-btn" data-operator="*" id="multiplyBtn">
+                            <span class="operator-symbol">×</span>
+                            <span class="operator-name" data-i18n="multiplication">Multiplication</span>
+                        </button>
+                        <button class="operator-btn" data-operator="/" id="divideBtn">
+                            <span class="operator-symbol">÷</span>
+                            <span class="operator-name" data-i18n="division">Division</span>
+                        </button>
                     </div>
                     
                     <div class="answer-section" id="answerSection" style="display: none;">
@@ -72,9 +80,17 @@ class StorekeeperStories extends BaseGame {
                 <div class="feedback" id="feedback"></div>
             </div>
         `;
-        
-        this.loadCurrentProblem();
-        this.setupEventListeners();
+    // Ensure initial state exists before first load (super() calls setupGame before child constructor finishes)
+    if (!this.problems) this.problems = this.generateProblemSet();
+    if (typeof this.currentProblemIndex !== 'number') this.currentProblemIndex = 0;
+    this.currentStep = 'chooseOperation';
+    this.selectedOperator = null;
+    this.userAnswer = null;
+
+    this.loadCurrentProblem();
+    this.setupEventListeners();
+    // Ensure operator choices reflect current difficulty
+    this.updateOperatorChoicesForDifficulty();
         
         // Retranslate after adding content
         if (typeof i18n !== 'undefined') {
@@ -149,40 +165,52 @@ class StorekeeperStories extends BaseGame {
                 }
             ],
             hard: [
+                // Multiplication
                 {
-                    story: "A toy store received 125 puzzles in the morning and 67 more puzzles in the afternoon. How many puzzles did they receive in total?",
-                    storyEs: "Una juguetería recibió 125 rompecabezas en la mañana y 67 rompecabezas más en la tarde. ¿Cuántos rompecabezas recibieron en total?",
+                    story: "A classroom has 12 boxes of markers. Each box has 7 markers. How many markers are there in total?",
+                    storyEs: "Una clase tiene 12 cajas de marcadores. Cada caja tiene 7 marcadores. ¿Cuántos marcadores hay en total?",
+                    a: 12, b: 7, operator: '*', answer: 84,
+                    visual: { type: 'markers', initial: 12, change: 7, operation: 'multiply' }
+                },
+                // Division
+                {
+                    story: "There are 96 apples shared equally into 8 baskets. How many apples are in each basket?",
+                    storyEs: "Hay 96 manzanas repartidas en partes iguales en 8 canastas. ¿Cuántas manzanas hay en cada canasta?",
+                    a: 96, b: 8, operator: '/', answer: 12,
+                    visual: { type: 'apples', initial: 96, change: 8, operation: 'divide' }
+                },
+                // Addition (keep one complex add)
+                {
+                    story: "A toy store received 125 puzzles in the morning and 67 more in the afternoon. How many puzzles in total?",
+                    storyEs: "Una juguetería recibió 125 rompecabezas en la mañana y 67 más en la tarde. ¿Cuántos rompecabezas en total?",
                     a: 125, b: 67, operator: '+', answer: 192,
                     visual: { type: 'puzzles', initial: 125, change: 67, operation: 'add' }
                 },
+                // Subtraction (keep one complex subtract)
                 {
-                    story: "The school cafeteria prepared 250 sandwiches. By the end of lunch, 186 sandwiches were eaten. How many sandwiches were not eaten?",
-                    storyEs: "La cafetería de la escuela preparó 250 sándwiches. Al final del almuerzo, se comieron 186 sándwiches. ¿Cuántos sándwiches no se comieron?",
-                    a: 250, b: 186, operator: '-', answer: 64,
-                    visual: { type: 'sandwiches', initial: 250, change: 186, operation: 'remove' }
-                },
-                {
-                    story: "A farmer harvested 89 pumpkins from one field and 56 pumpkins from another field. How many pumpkins did he harvest altogether?",
-                    storyEs: "Un granjero cosechó 89 calabazas de un campo y 56 calabazas de otro campo. ¿Cuántas calabazas cosechó en total?",
-                    a: 89, b: 56, operator: '+', answer: 145,
-                    visual: { type: 'pumpkins', initial: 89, change: 56, operation: 'add' }
-                },
-                {
-                    story: "The movie theater sold 324 tickets for the evening show. 78 people didn't show up. How many people actually watched the movie?",
-                    storyEs: "El cine vendió 324 boletos para la función de la noche. 78 personas no llegaron. ¿Cuántas personas vieron realmente la película?",
+                    story: "The movie theater sold 324 tickets for the evening show. 78 people didn't show up. How many people watched the movie?",
+                    storyEs: "El cine vendió 324 boletos para la función de la noche. 78 personas no llegaron. ¿Cuántas personas vieron la película?",
                     a: 324, b: 78, operator: '-', answer: 246,
                     visual: { type: 'tickets', initial: 324, change: 78, operation: 'remove' }
                 },
+                // Multiplication (second)
                 {
-                    story: "A delivery truck carried 156 packages in the first trip and 198 packages in the second trip. How many packages were delivered in both trips?",
-                    storyEs: "Un camión de reparto llevó 156 paquetes en el primer viaje y 198 paquetes en el segundo viaje. ¿Cuántos paquetes se entregaron en ambos viajes?",
-                    a: 156, b: 198, operator: '+', answer: 354,
-                    visual: { type: 'packages', initial: 156, change: 198, operation: 'add' }
+                    story: "A bakery baked 18 trays of cupcakes with 11 cupcakes on each tray. How many cupcakes did they bake?",
+                    storyEs: "Una panadería horneó 18 bandejas de pastelitos con 11 pastelitos en cada bandeja. ¿Cuántos pastelitos hornearon?",
+                    a: 18, b: 11, operator: '*', answer: 198,
+                    visual: { type: 'cupcakes', initial: 18, change: 11, operation: 'multiply' }
                 }
             ]
         };
-        
-        return problems[this.difficulty] || problems.easy;
+
+        // Ensure at least 20 problems per difficulty by generating extras as needed
+        let set = problems[this.difficulty] || problems.easy;
+        const need = 20 - set.length;
+        if (need > 0) {
+            const extras = this.generateProblemsForDifficulty(this.difficulty, need);
+            set = set.concat(extras);
+        }
+        return set;
     }
     
     loadCurrentProblem() {
@@ -204,7 +232,9 @@ class StorekeeperStories extends BaseGame {
     
     updateDisplay() {
         // Update story text
-        const currentLang = i18n.getCurrentLanguage();
+        const currentLang = (typeof i18n !== 'undefined' && typeof i18n.getCurrentLanguage === 'function')
+            ? i18n.getCurrentLanguage()
+            : 'en';
         const storyText = currentLang === 'es' ? this.currentProblem.storyEs : this.currentProblem.story;
         document.getElementById('storyText').textContent = storyText;
         
@@ -232,10 +262,12 @@ class StorekeeperStories extends BaseGame {
         const itemEmojis = {
             apples: '🍎', cars: '🚗', stickers: '⭐', cookies: '🍪', shells: '🐚',
             cupcakes: '🧁', chickens: '🐔', books: '📚', coins: '🪙', fish: '🐠',
-            puzzles: '🧩', sandwiches: '🥪', pumpkins: '🎃', tickets: '🎫', packages: '📦'
+            puzzles: '🧩', sandwiches: '🥪', pumpkins: '🎃', tickets: '🎫', packages: '📦',
+            markers: '🖍️'
         };
         
-        const emoji = itemEmojis[visual.type] || '⭐';
+    const emoji = itemEmojis[visual.type] || '⭐';
+    const opSymbolMap = { add: '+', remove: '−', multiply: '×', divide: '÷' };
         
         // Initial items
         let content = `<div class="visual-group initial-group">`;
@@ -248,23 +280,31 @@ class StorekeeperStories extends BaseGame {
         }
         content += `</div>`;
         
-        // Operation indicator
-        if (visual.operation === 'add') {
-            content += `<div class="operation-indicator">+</div>`;
+        // For multiply/divide, render as numeric chips instead of many emojis
+        if (visual.operation === 'multiply' || visual.operation === 'divide') {
+            content += `
+                <div class="operation-indicator">${opSymbolMap[visual.operation]}</div>
+                <div class="visual-group numeric-group">
+                    <span class="number-chip">${visual.initial}</span>
+                    <span class="number-chip sep">${opSymbolMap[visual.operation]}</span>
+                    <span class="number-chip">${visual.change}</span>
+                </div>
+            `;
         } else {
-            content += `<div class="operation-indicator">−</div>`;
+            // Operation indicator for add/remove
+            content += `<div class="operation-indicator">${opSymbolMap[visual.operation] || '+'}</div>`;
+            
+            // Change items (emoji group)
+            content += `<div class="visual-group change-group ${visual.operation}">`;
+            const changeDisplayCount = Math.min(visual.change, 10);
+            for (let i = 0; i < changeDisplayCount; i++) {
+                content += `<span class="visual-item">${emoji}</span>`;
+            }
+            if (visual.change > 10) {
+                content += `<span class="item-count">+${visual.change - 10} more</span>`;
+            }
+            content += `</div>`;
         }
-        
-        // Change items
-        content += `<div class="visual-group change-group ${visual.operation}">`;
-        const changeDisplayCount = Math.min(visual.change, 10);
-        for (let i = 0; i < changeDisplayCount; i++) {
-            content += `<span class="visual-item">${emoji}</span>`;
-        }
-        if (visual.change > 10) {
-            content += `<span class="item-count">+${visual.change - 10} more</span>`;
-        }
-        content += `</div>`;
         
         visualDiv.innerHTML = content;
         container.appendChild(visualDiv);
@@ -288,13 +328,28 @@ class StorekeeperStories extends BaseGame {
     }
     
     setupEventListeners() {
-        const addBtn = document.getElementById('addBtn');
-        const subtractBtn = document.getElementById('subtractBtn');
         const answerInput = document.getElementById('answerInput');
         const checkAnswerBtn = document.getElementById('checkAnswerBtn');
-        
-        addBtn.addEventListener('click', () => this.selectOperator('+'));
-        subtractBtn.addEventListener('click', () => this.selectOperator('-'));
+        const operatorBox = document.getElementById('operatorBox');
+        const operationChoices = document.getElementById('operationChoices');
+
+        // Delegate clicks for operator buttons to survive DOM changes/translations
+        if (!this._opClickHandler) {
+            this._opClickHandler = (e) => {
+                if (this.currentStep !== 'chooseOperation') return;
+                const btn = e.target.closest('.operator-btn');
+                if (!btn || !operationChoices.contains(btn)) return;
+                const op = btn.dataset.operator;
+                if (op === '+' || op === '-' || op === '*' || op === '/') {
+                    this.selectOperator(op);
+                }
+            };
+        }
+        // Remove any previous binding to avoid duplicates, then add
+        if (this._opClickHandler) {
+            operationChoices.removeEventListener('click', this._opClickHandler);
+        }
+        operationChoices.addEventListener('click', this._opClickHandler);
         
         answerInput.addEventListener('input', () => {
             this.userAnswer = parseInt(answerInput.value);
@@ -308,19 +363,51 @@ class StorekeeperStories extends BaseGame {
         });
         
         checkAnswerBtn.addEventListener('click', () => this.checkAnswer());
+
+        // Allow clicking the operator box to choose the operation (cycles between + and -)
+        operatorBox.addEventListener('click', () => {
+            if (this.currentStep !== 'chooseOperation') return;
+            const ops = this.getAvailableOperators();
+            const current = this.selectedOperator || ops[0];
+            const idx = ops.indexOf(current);
+            const next = ops[(idx + 1) % ops.length];
+            this.selectOperator(next);
+        });
+
+        // Keyboard shortcuts for operator selection (bind once per instance)
+        if (!this._keyHandler) {
+            this._keyHandler = (e) => {
+                if (this.currentStep !== 'chooseOperation') return;
+                if (e.key === '+' || e.key === '=') { // some keyboards require Shift+='='
+                    e.preventDefault();
+                    this.selectOperator('+');
+                } else if (e.key === '-') {
+                    e.preventDefault();
+                    this.selectOperator('-');
+                } else if (e.key === '*' || e.key.toLowerCase() === 'x') {
+                    e.preventDefault();
+                    if (this.getAvailableOperators().includes('*')) this.selectOperator('*');
+                } else if (e.key === '/') {
+                    e.preventDefault();
+                    if (this.getAvailableOperators().includes('/')) this.selectOperator('/');
+                }
+            };
+            document.addEventListener('keydown', this._keyHandler);
+        }
     }
     
     selectOperator(operator) {
         this.selectedOperator = operator;
         
         // Update operator display
-        document.getElementById('operatorBox').innerHTML = `<span class="selected-operator">${operator}</span>`;
+    document.getElementById('operatorBox').innerHTML = `<span class="selected-operator">${this.getOperatorSymbol(operator)}</span>`;
         
         // Mark selected button
         document.querySelectorAll('.operator-btn').forEach(btn => {
             btn.classList.remove('selected');
         });
-        document.querySelector(`[data-operator="${operator}"]`).classList.add('selected');
+    const btn = document.querySelector(`[data-operator="${operator}"]`);
+    if (btn) btn.classList.add('selected');
         
         // Check if correct operator
         if (operator === this.currentProblem.operator) {
@@ -340,7 +427,7 @@ class StorekeeperStories extends BaseGame {
         document.getElementById('answerSection').style.display = 'block';
         
         // Enable answer input
-        const answerInput = document.getElementById('answerInput');
+    const answerInput = document.getElementById('answerInput');
         answerInput.disabled = false;
         answerInput.focus();
         
@@ -397,7 +484,7 @@ class StorekeeperStories extends BaseGame {
             <div class="complete-success">
                 <div class="celebration">🎉</div>
                 <div class="success-text" data-i18n="correct">Correct!</div>
-                <div class="equation-summary">${this.currentProblem.a} ${this.currentProblem.operator} ${this.currentProblem.b} = ${this.currentProblem.answer}</div>
+                <div class="equation-summary">${this.currentProblem.a} ${this.getOperatorSymbol(this.currentProblem.operator)} ${this.currentProblem.b} = ${this.currentProblem.answer}</div>
             </div>
         `;
         feedback.className = 'feedback success';
@@ -470,6 +557,7 @@ class StorekeeperStories extends BaseGame {
     onDifficultyChange() {
         this.currentProblemIndex = 0;
         this.problems = this.generateProblemSet();
+        this.updateOperatorChoicesForDifficulty();
         this.loadCurrentProblem();
     }
     
@@ -479,6 +567,164 @@ class StorekeeperStories extends BaseGame {
         super.restart();
     }
 }
+
+// Helper methods for operator handling
+StorekeeperStories.prototype.getOperatorSymbol = function(op) {
+    switch(op) {
+        case '*': return '×';
+        case '/': return '÷';
+        default: return op;
+    }
+};
+
+StorekeeperStories.prototype.getAvailableOperators = function() {
+    return this.difficulty === 'hard' ? ['+','-','*','/'] : ['+','-'];
+};
+
+StorekeeperStories.prototype.updateOperatorChoicesForDifficulty = function() {
+    const isHard = this.difficulty === 'hard';
+    const mulBtn = document.getElementById('multiplyBtn');
+    const divBtn = document.getElementById('divideBtn');
+    if (mulBtn) mulBtn.style.display = isHard ? '' : 'none';
+    if (divBtn) divBtn.style.display = isHard ? '' : 'none';
+};
+
+// Problem generators to guarantee at least 20 per difficulty
+StorekeeperStories.prototype.generateProblemsForDifficulty = function(difficulty, count) {
+    const problems = [];
+
+    const items = [
+        { type: 'apples', en: 'apples', es: 'manzanas' },
+        { type: 'cookies', en: 'cookies', es: 'galletas' },
+        { type: 'stickers', en: 'stickers', es: 'calcomanías' },
+        { type: 'coins', en: 'coins', es: 'monedas' },
+        { type: 'books', en: 'books', es: 'libros' },
+        { type: 'fish', en: 'fish', es: 'peces' },
+        { type: 'cupcakes', en: 'cupcakes', es: 'pastelitos' },
+        { type: 'pumpkins', en: 'pumpkins', es: 'calabazas' },
+        { type: 'puzzles', en: 'puzzles', es: 'rompecabezas' },
+        { type: 'tickets', en: 'tickets', es: 'boletos' },
+        { type: 'packages', en: 'packages', es: 'paquetes' },
+        { type: 'cars', en: 'toy cars', es: 'carritos' },
+        { type: 'shells', en: 'seashells', es: 'caracolas' },
+        { type: 'chickens', en: 'chickens', es: 'pollos' },
+        { type: 'sandwiches', en: 'sandwiches', es: 'sándwiches' },
+        { type: 'markers', en: 'markers', es: 'marcadores' }
+    ];
+
+    const pickItem = () => items[this.randBetween(0, items.length - 1)];
+    const pickOp = () => {
+        if (difficulty === 'hard') return ['+','-','*','/'][this.randBetween(0,3)];
+        return ['+','-'][this.randBetween(0,1)];
+    };
+
+    while (problems.length < count) {
+        const item = pickItem();
+        const op = pickOp();
+        let a = 0, b = 0, answer = 0, visualOp = 'add';
+
+        if (difficulty === 'easy') {
+            if (op === '+') {
+                a = this.randBetween(1, 10);
+                b = this.randBetween(1, 10);
+                answer = a + b;
+                visualOp = 'add';
+            } else { // '-'
+                a = this.randBetween(5, 15);
+                b = this.randBetween(1, a);
+                answer = a - b;
+                visualOp = 'remove';
+            }
+        } else if (difficulty === 'medium') {
+            if (op === '+') {
+                a = this.randBetween(10, 50);
+                b = this.randBetween(10, 50);
+                answer = a + b;
+                visualOp = 'add';
+            } else { // '-'
+                a = this.randBetween(20, 80);
+                b = this.randBetween(5, a);
+                answer = a - b;
+                visualOp = 'remove';
+            }
+        } else { // hard
+            if (op === '+') {
+                a = this.randBetween(80, 300);
+                b = this.randBetween(40, 200);
+                answer = a + b;
+                visualOp = 'add';
+            } else if (op === '-') {
+                a = this.randBetween(120, 400);
+                b = this.randBetween(20, a);
+                answer = a - b;
+                visualOp = 'remove';
+            } else if (op === '*') {
+                a = this.randBetween(6, 12);
+                b = this.randBetween(6, 12);
+                answer = a * b;
+                visualOp = 'multiply';
+            } else { // '/'
+                b = this.randBetween(3, 12);
+                const q = this.randBetween(5, 20);
+                a = b * q;
+                answer = q;
+                visualOp = 'divide';
+            }
+        }
+
+        const story = this.composeStory(op, a, b, item.en);
+        const storyEs = this.composeStoryEs(op, a, b, item.es);
+
+        problems.push({
+            story,
+            storyEs,
+            a,
+            b,
+            operator: op,
+            answer,
+            visual: { type: item.type, initial: a, change: b, operation: visualOp }
+        });
+    }
+
+    return problems;
+};
+
+StorekeeperStories.prototype.randBetween = function(min, max) {
+    if (typeof MathGames !== 'undefined' && typeof MathGames.randomBetween === 'function') {
+        return MathGames.randomBetween(min, max);
+    }
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
+StorekeeperStories.prototype.composeStory = function(op, a, b, itemPluralEn) {
+    switch(op) {
+        case '+':
+            return `A store has ${a} ${itemPluralEn}. It receives ${b} more. How many ${itemPluralEn} are there now?`;
+        case '-':
+            return `A store has ${a} ${itemPluralEn}. It sells ${b}. How many ${itemPluralEn} are left?`;
+        case '*':
+            return `There are ${a} groups of ${b} ${itemPluralEn}. How many ${itemPluralEn} are there in total?`;
+        case '/':
+            return `There are ${a} ${itemPluralEn} shared equally into ${b} groups. How many ${itemPluralEn} are in each group?`;
+        default:
+            return '';
+    }
+};
+
+StorekeeperStories.prototype.composeStoryEs = function(op, a, b, itemPluralEs) {
+    switch(op) {
+        case '+':
+            return `Una tienda tiene ${a} ${itemPluralEs}. Recibe ${b} más. ¿Cuántos ${itemPluralEs} hay ahora?`;
+        case '-':
+            return `Una tienda tiene ${a} ${itemPluralEs}. Vende ${b}. ¿Cuántos ${itemPluralEs} quedan?`;
+        case '*':
+            return `Hay ${a} grupos de ${b} ${itemPluralEs}. ¿Cuántos ${itemPluralEs} hay en total?`;
+        case '/':
+            return `Hay ${a} ${itemPluralEs} repartidos en partes iguales en ${b} grupos. ¿Cuántos ${itemPluralEs} hay en cada grupo?`;
+        default:
+            return '';
+    }
+};
 
 // Add CSS for Storekeeper Stories
 const storekeeperStoriesCSS = `
@@ -585,6 +831,24 @@ const storekeeperStoriesCSS = `
     margin: 2px;
     display: inline-block;
     animation: popIn 0.3s ease-out;
+}
+
+.numeric-group {
+    gap: 0.5rem;
+}
+
+.number-chip {
+    background: var(--card-background);
+    border: 2px solid var(--border-color);
+    padding: 6px 10px;
+    border-radius: 12px;
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+.number-chip.sep {
+    background: var(--background-color);
+    border-style: dashed;
 }
 
 .item-count {

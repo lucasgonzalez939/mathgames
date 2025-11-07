@@ -4,10 +4,14 @@ class FactFamilyFarm extends BaseGame {
         super(container);
         this.gameType = 'fact-family-farm';
         this.targetNumber = 10;
+        // Each item is { id, number, emoji }
         this.barnItems = [];
         this.fieldItems = [];
         this.draggedElement = null;
         this.completedPairs = 0;
+        // IDs for draggable items
+        this.roundCount = 0;
+        this.nextItemId = 1;
     }
     
     getTitleKey() {
@@ -65,40 +69,65 @@ class FactFamilyFarm extends BaseGame {
     }
     
     generateNewRound() {
-        // Set target based on difficulty
-        switch(this.difficulty) {
-            case 'easy':
-                this.targetNumber = MathGames.randomBetween(5, 10);
-                break;
-            case 'medium':
-                this.targetNumber = MathGames.randomBetween(8, 15);
-                break;
-            case 'hard':
-                this.targetNumber = MathGames.randomBetween(10, 20);
-                break;
-        }
+        // Set target randomly within difficulty bounds each round
+        const bounds = this.getTargetBounds();
+        this.targetNumber = MathGames.randomBetween(bounds.min, bounds.max);
         
         // Generate number bonds (pairs that sum to target)
-        const pairs = MathGames.generateNumberBonds(this.targetNumber);
-        
-        // Add some extra distractor numbers
+        const allPairs = MathGames.generateNumberBonds(this.targetNumber);
+
+        // Determine how many pairs and distractors to use per difficulty (more animals on higher difficulty)
+        let pairsToUse = 4; // default for easy
+        let distractorCount = 2;
+        if (this.difficulty === 'medium') { pairsToUse = 6; distractorCount = 4; }
+        if (this.difficulty === 'hard') { pairsToUse = 8; distractorCount = 6; }
+
+        // Cap by available pairs
+        pairsToUse = Math.min(pairsToUse, allPairs.length);
+
+        // Select a random subset of unique pairs, then flatten to numbers
+    const selectedPairs = MathGames.shuffleArray(allPairs).slice(0, pairsToUse);
+    const numbersFromPairs = selectedPairs.flat();
+
+        // Add distractor numbers that are not useful for making the target easily
         const distractors = [];
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < distractorCount; i++) {
             let distractor;
+            let safety = 0;
             do {
-                distractor = MathGames.randomBetween(1, this.targetNumber + 5);
-            } while (pairs.flat().includes(distractor) || distractors.includes(distractor));
+                distractor = MathGames.randomBetween(1, this.targetNumber + 10);
+                safety++;
+            } while (
+                (numbersFromPairs.includes(distractor) || distractors.includes(distractor)) && safety < 50
+            );
             distractors.push(distractor);
         }
-        
-        // Combine all numbers and shuffle
-        this.fieldItems = MathGames.shuffleArray([...pairs.flat(), ...distractors]);
+
+        // Build item objects with random emojis
+        const itemsFromPairs = numbersFromPairs.map(n => this.createItem(n));
+        const distractorItems = distractors.map(n => this.createItem(n));
+        // Combine and shuffle into field
+        this.fieldItems = MathGames.shuffleArray([...itemsFromPairs, ...distractorItems]);
         this.barnItems = [];
         
         this.updateDisplay();
         this.renderAnimals();
+        this.updateBarnStatus();
         // Start timing for a new round problem
         this.startProblem();
+    }
+
+    getTargetBounds() {
+        switch(this.difficulty) {
+            case 'easy':
+                return { min: 5, max: 10 };
+            case 'medium':
+                return { min: 10, max: 50 };
+            case 'hard':
+                return { min: 10, max: 100 };
+            default:
+                return { min: 5, max: 10 };
+        }
     }
     
     updateDisplay() {
@@ -109,7 +138,7 @@ class FactFamilyFarm extends BaseGame {
     }
     
     calculateBarnSum() {
-        return this.barnItems.reduce((sum, item) => sum + item, 0);
+        return this.barnItems.reduce((sum, item) => sum + item.number, 0);
     }
     
     renderAnimals() {
@@ -121,8 +150,8 @@ class FactFamilyFarm extends BaseGame {
         const field = document.getElementById('field');
         field.innerHTML = '';
         
-        this.fieldItems.forEach((number, index) => {
-            const animal = this.createAnimalElement(number, 'field', index);
+        this.fieldItems.forEach((item, index) => {
+            const animal = this.createAnimalElement(item, 'field', index);
             field.appendChild(animal);
         });
     }
@@ -131,27 +160,29 @@ class FactFamilyFarm extends BaseGame {
         const barnAnimals = document.getElementById('barnAnimals');
         barnAnimals.innerHTML = '';
         
-        this.barnItems.forEach((number, index) => {
-            const animal = this.createAnimalElement(number, 'barn', index);
+        this.barnItems.forEach((item, index) => {
+            const animal = this.createAnimalElement(item, 'barn', index);
             barnAnimals.appendChild(animal);
         });
+
+        // Update wrong/correct visual state after rendering
+        this.updateBarnStatus();
     }
     
-    createAnimalElement(number, location, index) {
+    createAnimalElement(item, location, index) {
         const animal = document.createElement('div');
         animal.className = `animal ${location}-animal`;
-        animal.setAttribute('data-number', number);
+        animal.setAttribute('data-number', item.number);
+        animal.setAttribute('data-id', item.id);
         animal.setAttribute('data-location', location);
         animal.setAttribute('data-index', index);
         
         // Assign animal emoji based on number
-        const animalEmojis = ['🐶', '🐱', '🐷', '🐮', '🐸', '🐥', '🐰', '🦆', '🐴', '🐺', 
-                             '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐵', '🐒', '🐘', '🦒'];
-        const emoji = animalEmojis[number % animalEmojis.length];
+        const emoji = item.emoji;
         
         animal.innerHTML = `
             <div class="animal-emoji">${emoji}</div>
-            <div class="animal-number">${number}</div>
+            <div class="animal-number">${item.number}</div>
         `;
         
         // Make draggable only if in field
@@ -164,6 +195,13 @@ class FactFamilyFarm extends BaseGame {
             animal.addEventListener('touchstart', (e) => this.handleTouchStart(e), { passive: false });
             animal.addEventListener('touchmove', (e) => this.handleTouchMove(e), { passive: false });
             animal.addEventListener('touchend', (e) => this.handleTouchEnd(e), { passive: false });
+        } else {
+            // In barn: clicking removes animal to allow easy corrections
+            animal.addEventListener('click', () => {
+                const id = parseInt(animal.getAttribute('data-id'));
+                const idx = parseInt(animal.getAttribute('data-index'));
+                this.moveAnimalToField(id, idx);
+            });
         }
         
         return animal;
@@ -195,7 +233,7 @@ class FactFamilyFarm extends BaseGame {
         this.draggedElement = element;
         element.classList.add('dragging');
         e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/plain', element.getAttribute('data-number'));
+        e.dataTransfer.setData('text/plain', element.getAttribute('data-id'));
     }
     
     handleDragEnd(e) {
@@ -220,11 +258,11 @@ class FactFamilyFarm extends BaseGame {
         
         if (!this.draggedElement) return false;
         
-        const number = parseInt(this.draggedElement.getAttribute('data-number'));
+        const id = parseInt(this.draggedElement.getAttribute('data-id'));
         const fromLocation = this.draggedElement.getAttribute('data-location');
         
         if (fromLocation === 'field') {
-            this.moveAnimalToBarn(number);
+            this.moveAnimalToBarn(id);
         }
         
         this.draggedElement = null;
@@ -237,11 +275,12 @@ class FactFamilyFarm extends BaseGame {
         
         if (!this.draggedElement) return false;
         
-        const number = parseInt(this.draggedElement.getAttribute('data-number'));
+        const id = parseInt(this.draggedElement.getAttribute('data-id'));
         const fromLocation = this.draggedElement.getAttribute('data-location');
+        const idx = parseInt(this.draggedElement.getAttribute('data-index'));
         
         if (fromLocation === 'barn') {
-            this.moveAnimalToField(number);
+            this.moveAnimalToField(id, isNaN(idx) ? undefined : idx);
         }
         
         this.draggedElement = null;
@@ -303,55 +342,55 @@ class FactFamilyFarm extends BaseGame {
         const barn = document.getElementById('barn');
         const field = document.getElementById('field');
         
-        const number = parseInt(this.draggedElement.getAttribute('data-number'));
+        const id = parseInt(this.draggedElement.getAttribute('data-id'));
         const fromLocation = this.draggedElement.getAttribute('data-location');
         
         if (barn.contains(elementBelow) && fromLocation === 'field') {
-            this.moveAnimalToBarn(number);
+            this.moveAnimalToBarn(id);
         } else if (field.contains(elementBelow) && fromLocation === 'barn') {
-            this.moveAnimalToField(number);
+            this.moveAnimalToField(id);
         }
         
         this.draggedElement = null;
     }
     
-    moveAnimalToBarn(number) {
-        const newSum = this.calculateBarnSum() + number;
-        
-        if (newSum > this.targetNumber) {
-            // Exceeds target - reject
-            this.playSound('wrong');
-            this.showFeedback('Too much! The barn can only hold ' + this.targetNumber + '.', 'error');
-            this.animateRejection();
-            // Record incorrect attempt for achievement tracking
-            this.recordIncorrectAnswer();
-            return;
-        }
-        
-        // Move from field to barn
-        const fieldIndex = this.fieldItems.indexOf(number);
+    moveAnimalToBarn(itemId) {
+        const fieldIndex = this.findItemIndexById(this.fieldItems, itemId);
         if (fieldIndex > -1) {
+            const item = this.fieldItems[fieldIndex];
+            const newSum = this.calculateBarnSum() + item.number;
+            // Move from field to barn
             this.fieldItems.splice(fieldIndex, 1);
-            this.barnItems.push(number);
+            this.barnItems.push(item);
             
             this.updateDisplay();
             this.renderAnimals();
+            this.updateBarnStatus();
             
             if (newSum === this.targetNumber) {
                 this.checkForCompletePair();
+            } else if (newSum > this.targetNumber) {
+                // Allow wrong state; mark visually and log incorrect attempt once
+                this.playSound('wrong');
+                this.recordIncorrectAnswer();
+                this.updateBarnStatus();
             }
         }
     }
     
-    moveAnimalToField(number) {
+    moveAnimalToField(itemId, barnIndexOverride) {
         // Move from barn to field
-        const barnIndex = this.barnItems.indexOf(number);
+        const barnIndex = (typeof barnIndexOverride === 'number' && barnIndexOverride >= 0)
+            ? barnIndexOverride
+            : this.findItemIndexById(this.barnItems, itemId);
         if (barnIndex > -1) {
+            const item = this.barnItems[barnIndex];
             this.barnItems.splice(barnIndex, 1);
-            this.fieldItems.push(number);
+            this.fieldItems.push(item);
             
             this.updateDisplay();
             this.renderAnimals();
+            this.updateBarnStatus();
         }
     }
     
@@ -360,6 +399,11 @@ class FactFamilyFarm extends BaseGame {
             // Found a complete pair!
             this.playSound('success');
             this.completedPairs++;
+            // Level progression: every N correct pairs (easy/medium/hard: 5)
+            const threshold = 5;
+            if (this.completedPairs > 0 && this.completedPairs % threshold === 0) {
+                this.updateLevel();
+            }
             
             // Show success animation
             this.animateSuccess();
@@ -387,17 +431,29 @@ class FactFamilyFarm extends BaseGame {
         // Check if remaining field items can make valid pairs
         for (let i = 0; i < this.fieldItems.length; i++) {
             for (let j = i + 1; j < this.fieldItems.length; j++) {
-                if (this.fieldItems[i] + this.fieldItems[j] === this.targetNumber) {
+                if (this.fieldItems[i].number + this.fieldItems[j].number === this.targetNumber) {
                     return true;
                 }
             }
         }
         return false;
     }
+
+    createItem(number) {
+        const animalEmojis = ['🐶', '🐱', '🐷', '🐮', '🐸', '🐥', '🐰', '🦆', '🐴', '🐺', 
+                              '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐵', '🐒', '🐘', '🦒'];
+        const emoji = animalEmojis[Math.floor(Math.random() * animalEmojis.length)];
+        return { id: this.nextItemId++, number, emoji };
+    }
+
+    findItemIndexById(list, id) {
+        return list.findIndex(it => it.id === id);
+    }
     
     animateSuccess() {
         const barn = document.getElementById('barn');
         barn.classList.add('success-glow');
+        barn.classList.remove('wrong');
         
         this.showFeedback('🎉 Perfect! You made ' + this.targetNumber + '! 🎉', 'success');
         
@@ -407,6 +463,18 @@ class FactFamilyFarm extends BaseGame {
         setTimeout(() => {
             barn.classList.remove('success-glow');
         }, 2000);
+    }
+
+    updateBarnStatus() {
+        const barn = document.getElementById('barn');
+        const sum = this.calculateBarnSum();
+        const isWrong = sum > this.targetNumber;
+        if (barn) {
+            barn.classList.toggle('wrong', isWrong);
+        }
+        // Mark individual animals in barn with red border when wrong
+        const barnAnimals = document.querySelectorAll('#barnAnimals .animal');
+        barnAnimals.forEach(el => el.classList.toggle('wrong', isWrong));
     }
     
     animateRejection() {
@@ -450,10 +518,6 @@ class FactFamilyFarm extends BaseGame {
     
     completeRound() {
         this.showFeedback('🏆 All pairs found! Great job! 🏆', 'success');
-        
-        if (this.score > 0 && this.score % 75 === 0) {
-            this.updateLevel();
-        }
         
         setTimeout(() => {
             this.generateNewRound();
@@ -530,6 +594,11 @@ const factFamilyFarmCSS = `
 .barn.success-glow {
     box-shadow: 0 0 20px var(--success-color);
     animation: pulse 0.6s ease-in-out;
+}
+
+.barn.wrong {
+    box-shadow: 0 0 16px var(--error-color);
+    border-color: var(--error-color);
 }
 
 .barn.shake {
@@ -650,6 +719,10 @@ const factFamilyFarmCSS = `
 .barn-animal {
     background: linear-gradient(145deg, #FFE4B5, #FFEFD5);
     border-color: var(--accent-color);
+}
+
+.barn-animal.wrong {
+    border-color: var(--error-color);
 }
 
 .animal-emoji {
