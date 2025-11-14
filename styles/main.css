@@ -186,6 +186,158 @@ body {
     overflow: hidden;
 }
 
+/* Fraction Forest Run (canvas wrapper) */
+.ffr-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+.ffr-hud {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    font-size: 1.1rem;
+    box-shadow: var(--shadow);
+}
+
+.ffr-hud > div {
+    padding: 0 1rem;
+}
+
+.ffr-game-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+#ffrCanvas {
+    display: block;
+    border: 3px solid var(--primary-color);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    background: #a8e6ff;
+}
+
+.ffr-controls-left,
+.ffr-controls-right {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.ffr-controls-center {
+    text-align: center;
+}
+
+.ffr-controls .btn {
+    padding: 1rem 1.5rem;
+    font-size: 1.2rem;
+    min-width: 60px;
+    min-height: 60px;
+}
+
+@media (max-width: 768px) {
+    .ffr-game-wrapper {
+        flex-direction: column;
+    }
+    
+    .ffr-controls-left,
+    .ffr-controls-right {
+        flex-direction: row;
+    }
+    
+    #ffrCanvas {
+        max-width: 100%;
+        height: auto;
+    }
+}
+
+/* Galaxy Math Defender (canvas wrapper) */
+.gmd-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+.gmd-hud {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    font-size: 1.1rem;
+    box-shadow: var(--shadow);
+}
+
+.gmd-hud > div {
+    padding: 0 1rem;
+}
+
+.gmd-game-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+#gmdCanvas {
+    display: block;
+    border: 3px solid var(--secondary-color);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    background: #000428;
+}
+
+.gmd-controls-left,
+.gmd-controls-right {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.gmd-controls-center {
+    text-align: center;
+}
+
+.gmd-controls .btn {
+    padding: 1rem 1.5rem;
+    font-size: 1.2rem;
+    min-width: 60px;
+    min-height: 60px;
+}
+
+@media (max-width: 768px) {
+    .gmd-game-wrapper {
+        flex-direction: column;
+    }
+    
+    .gmd-controls-left,
+    .gmd-controls-right {
+        flex-direction: row;
+    }
+    
+    #gmdCanvas {
+        max-width: 100%;
+        height: auto;
+    }
+}
+
+.gmd-controls .btn {
+    margin: 0 0.25rem;
+}
+
 .game-card::before {
     content: '';
     position: absolute;

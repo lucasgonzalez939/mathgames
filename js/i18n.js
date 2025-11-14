@@ -35,6 +35,20 @@ class I18n {
                 'game-6-desc': 'Solve real-world math word problems!',
                 'game-7-title': 'Pattern Painter',
                 'game-7-desc': 'Complete patterns and practice skip-counting!',
+                'game-8-title': 'Fraction Forest Run',
+                'game-8-desc': 'Run through the forest collecting numbers to hit the target!',
+                'game-9-title': 'Galaxy Math Defender',
+                'game-9-desc': 'Defend the galaxy by shooting the ship with the correct answer!',
+                
+                // Grade levels
+                'grade-1': '1st Grade',
+                'grade-2': '2nd Grade',
+                'grade-3': '3rd Grade',
+                'grade-1-2': '1st & 2nd Grade',
+                'grade-2-3': '2nd & 3rd Grade',
+                'grade-1-2-3': '1st, 2nd & 3rd Grade',
+                'grade-3-4': '3rd & 4th Grade',
+                'grade-3-5': '3rd to 5th Grade',
                 
                 // Common game elements
                 'score': 'Score',
@@ -91,6 +105,12 @@ class I18n {
                 'pattern-instructions': 'What comes next in the pattern?',
                 'pattern-continue': 'Great! Continue the pattern!',
                 
+                // Galaxy Math Defender
+                'gmd-shoot': 'Shoot',
+                'gmd-lives': 'Lives',
+                'gmd-fire': 'Fire',
+                'game-over': 'Game Over',
+                
                 // Additional common elements
                 'backwards': 'backwards',
                 'total': 'Total',
@@ -145,9 +165,13 @@ class I18n {
                 
                 // Grade levels
                 'grade-1': '1er Grado',
+                'grade-2': '2do Grado',
+                'grade-3': '3er Grado',
                 'grade-1-2': '1er y 2do Grado',
                 'grade-2-3': '2do y 3er Grado',
                 'grade-1-2-3': '1er, 2do y 3er Grado',
+                'grade-3-4': '3er y 4to Grado',
+                'grade-3-5': '3er a 5to Grado',
                 
                 // Game titles and descriptions
                 'game-1-title': 'Salto en la Recta Numérica',
@@ -164,6 +188,10 @@ class I18n {
                 'game-6-desc': '¡Resuelve problemas matemáticos del mundo real!',
                 'game-7-title': 'Pintor de Patrones',
                 'game-7-desc': '¡Completa patrones y practica contar de dos en dos!',
+                'game-8-title': 'Carrera del Bosque de Fracciones',
+                'game-8-desc': '¡Corre por el bosque recolectando números para alcanzar el objetivo!',
+                'game-9-title': 'Defensor Galáctico de Matemáticas',
+                'game-9-desc': '¡Defiende la galaxia disparando a la nave con la respuesta correcta!',
                 
                 // Common game elements
                 'score': 'Puntuación',
@@ -219,6 +247,12 @@ class I18n {
                 // Pattern Painter
                 'pattern-instructions': '¿Qué sigue en el patrón?',
                 'pattern-continue': '¡Genial! ¡Continúa el patrón!',
+                
+                // Galaxy Math Defender
+                'gmd-shoot': 'Dispara',
+                'gmd-lives': 'Vidas',
+                'gmd-fire': 'Disparar',
+                'game-over': 'Juego Terminado',
                 
                 // Additional common elements
                 'backwards': 'hacia atrás',

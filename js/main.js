@@ -115,6 +115,18 @@ class MathGames {
                     }
                     this.gameInstances[gameType] = new PatternPainter(gamePage);
                     break;
+                case 'fraction-forest-run':
+                    if (typeof FractionForestRun !== 'function') {
+                        throw new Error('FractionForestRun is not available. Check that js/games/fraction-forest-run.js is loaded.');
+                    }
+                    this.gameInstances[gameType] = new FractionForestRun(gamePage);
+                    break;
+                case 'galaxy-math-defender':
+                    if (typeof GalaxyMathDefender !== 'function') {
+                        throw new Error('GalaxyMathDefender is not available. Check that js/games/galaxy-math-defender.js is loaded.');
+                    }
+                    this.gameInstances[gameType] = new GalaxyMathDefender(gamePage);
+                    break;
                 default:
                     console.error('Unknown game type:', gameType);
                     this.showHomePage();
@@ -165,7 +177,9 @@ class MathGames {
             'fact-family-farm': '4',
             'place-value-puzzles': '5',
             'storekeeper-stories': '6',
-            'pattern-painter': '7'
+            'pattern-painter': '7',
+            'fraction-forest-run': '8',
+            'galaxy-math-defender': '9'
         };
         return gameMap[gameType] || '1';
     }
